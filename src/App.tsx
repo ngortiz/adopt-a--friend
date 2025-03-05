@@ -1,26 +1,26 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { Button } from '@mui/material';
-import Pages from './pages/index'; // Importa tu componente
+import AdoptAPet from './Pages/AdoptAPet';
+import AdoptionRequest from './Pages/AdoptionRequest';
+
+const Home = () => (
+  <div style={{ textAlign: 'center', marginTop: '20px' }}>
+    <h1>¡Bienvenido a Adopta un Amigo! 🐶🐱</h1>
+    <Button variant='contained' color='primary'>
+      <Link to='/adoptar' style={{ textDecoration: 'none', color: 'white' }}>
+        Explorar Mascotas
+      </Link>
+    </Button>
+  </div>
+);
 
 function App() {
   return (
     <Router>
-      <div style={{ textAlign: 'center', marginTop: '20px' }}>
-        <h1>¡Bienvenido a Adopta Amigo! 🐶🐱</h1>
-        {/* Enlace para ir a la página de adopción */}
-        <Button variant='contained' color='primary'>
-          <Link
-            to='/adoptar'
-            style={{ textDecoration: 'none', color: 'white' }}
-          >
-            Explorar Mascotas
-          </Link>
-        </Button>
-      </div>
-
-      {/* Definimos las rutas */}
       <Routes>
-        <Route path='/pages' element={<Pages />} />
+        <Route path='/' element={<Home />} /> {/* Página principal */}
+        <Route path='/adopt' element={<AdoptAPet />} />
+        <Route path='/adoption-request' element={<AdoptionRequest />} />
       </Routes>
     </Router>
   );
