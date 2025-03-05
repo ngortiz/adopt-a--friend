@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Importa useNavigate
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import {
   Card,
@@ -113,7 +113,7 @@ interface Pet {
   image: string;
 }
 
-const AdoptaUnAmigo = () => {
+const AdoptAPet = () => {
   const getStoredPets = (): Pet[] => {
     const storedPets = localStorage.getItem('pets');
     return storedPets ? JSON.parse(storedPets) : [];
@@ -127,7 +127,7 @@ const AdoptaUnAmigo = () => {
 
   const handleOpenForm = () => setIsFormOpen(true);
   const handleCloseForm = () => setIsFormOpen(false);
-  const navigate = useNavigate(); // Hook para navegación
+  const navigate = useNavigate();
 
   useEffect(() => {
     localStorage.setItem('pets', JSON.stringify(pets));
@@ -267,4 +267,4 @@ const AdoptaUnAmigo = () => {
   );
 };
 
-export default AdoptaUnAmigo;
+export default AdoptAPet;
