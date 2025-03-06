@@ -1,0 +1,39 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-adoptafriend-dev-1ab30-authRole",
+      "UnauthRoleArn": "arn:aws:iam::572049745016:role/amplify-adoptafriend-dev-1ab30-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::572049745016:role/amplify-adoptafriend-dev-1ab30-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-adoptafriend-dev-1ab30-deployment",
+      "UnauthRoleName": "amplify-adoptafriend-dev-1ab30-unauthRole",
+      "StackName": "amplify-adoptafriend-dev-1ab30",
+      "StackId": "arn:aws:cloudformation:us-east-1:572049745016:stack/amplify-adoptafriend-dev-1ab30/df056bc0-fa8a-11ef-bae7-0affd585f94d",
+      "AmplifyAppId": "d2xk961qwf71io",
+      "APIGatewayAuthURL": "https://s3.amazonaws.com/amplify-adoptafriend-dev-1ab30-deployment/amplify-cfn-templates/api/APIGatewayAuthStack.json"
+    },
+    "categories": {
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "d2xk961qwf71io",
+          "type": "manual"
+        }
+      },
+      "function": {
+        "petsHandler": {
+          "deploymentBucketName": "amplify-adoptafriend-dev-1ab30-deployment",
+          "s3Key": "amplify-builds/petsHandler-52753936754f58455630-build.zip"
+        }
+      },
+      "auth": {
+        "adoptafriend": {}
+      },
+      "storage": {
+        "pets": {}
+      },
+      "api": {
+        "adoptapetapi": {}
+      }
+    }
+  }
+}
