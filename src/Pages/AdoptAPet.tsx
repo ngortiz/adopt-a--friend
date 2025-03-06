@@ -15,9 +15,13 @@ import {
   Divider,
   Modal,
   Box,
+  Menu,
+  MenuItem,
+  IconButton,
 } from '@mui/material';
 import PetsIcon from '@mui/icons-material/Pets';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AddPetForm from '../components/AddPetForm';
 import logo from '../assets/logo.png';
 
@@ -25,17 +29,18 @@ import logo from '../assets/logo.png';
 const Container = styled.div`
   display: flex;
   height: 100vh;
-  background-color: #f8f9fa;
+  background-color: #e0e5ec;
 `;
 
 const Sidebar = styled.div`
   width: 250px;
-  background: #ffebcc;
+  background: #2c3e50;
   padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  color: white;
 `;
 
 const ModalContent = styled(Box)`
@@ -60,12 +65,17 @@ const Logo = styled.img`
 const Title = styled.h2`
   font-size: 1.5rem;
   margin-bottom: 20px;
-  color: #333;
+  color: white;
 `;
 
 const FilterButton = styled(Button)`
   margin: 5px !important;
   width: 100%;
+  background-color: #16a085 !important;
+  color: white !important;
+  &:hover {
+    background-color: #13856b !important;
+  }
 `;
 
 const MainContent = styled.div`
@@ -85,22 +95,22 @@ const PetRow = styled.div`
 const StyledCard = styled(Card)`
   position: relative;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s, box-shadow 0.3s;
   border-radius: 12px;
+  background-color: #ecf0f1;
 
   &:hover {
-    transform: scale(1.02);
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
   }
 `;
+
 const StyledListItemButton = styled(ListItemButton)`
-  color: #333;
+  color: white;
   &:hover {
-    background-color: #34495e;
+    background-color: #16a085;
   }
-`;
-const StyledList = styled(List)`
-  color: #333;
 `;
 
 interface Pet {
@@ -124,17 +134,37 @@ const AdoptAPet = () => {
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
-
-  const handleOpenForm = () => setIsFormOpen(true);
-  const handleCloseForm = () => setIsFormOpen(false);
+  const [menuAnchor, setMenuAnchor] = useState<{
+    [key: number]: HTMLElement | null;
+  }>({});
   const navigate = useNavigate();
 
   useEffect(() => {
     localStorage.setItem('pets', JSON.stringify(pets));
   }, [pets]);
 
-  const handleSelectPet = (pet: Pet) => {
+  const handleOpenForm = () => setIsFormOpen(true);
+  const handleCloseForm = () => setIsFormOpen(false);
+
+  const handleOpenMenu = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    id: number
+  ) => {
+    setMenuAnchor((prev) => ({ ...prev, [id]: event.currentTarget }));
+  };
+
+  const handleCloseMenu = (id: number) => {
+    setMenuAnchor((prev) => ({ ...prev, [id]: null }));
+  };
+
+  const handleDeletePet = (id: number) => {
+    setPets((prevPets) => prevPets.filter((pet) => pet.id !== id));
+    handleCloseMenu(id);
+  };
+
+  const handleEditPet = (pet: Pet) => {
     setSelectedPet(pet);
+    setIsFormOpen(true); // Abrir formulario de edición
   };
 
   const filteredPets = pets.filter(
@@ -149,7 +179,7 @@ const AdoptAPet = () => {
         <Logo src={logo} alt='Adopta Un Amigo' />
         <Title>🏡 Adopta un Amigo</Title>
 
-        <StyledList>
+        <List>
           {['Perro', 'Gato'].map((species) => (
             <ListItem key={species} disablePadding>
               <StyledListItemButton onClick={() => setSelectedSpecies(species)}>
@@ -160,20 +190,18 @@ const AdoptAPet = () => {
               </StyledListItemButton>
             </ListItem>
           ))}
-        </StyledList>
+        </List>
         <Divider />
 
         <Title>Filtrar por Género</Title>
         <FilterButton
-          variant={selectedGender === 'Hembra' ? 'contained' : 'outlined'}
-          color='secondary'
+          variant='contained'
           onClick={() => setSelectedGender('Hembra')}
         >
           Hembra
         </FilterButton>
         <FilterButton
-          variant={selectedGender === 'Macho' ? 'contained' : 'outlined'}
-          color='primary'
+          variant='contained'
           onClick={() => setSelectedGender('Macho')}
         >
           Macho
@@ -191,27 +219,48 @@ const AdoptAPet = () => {
       <MainContent>
         <PetRow>
           {filteredPets.map((pet) => (
-            <StyledCard key={pet.id} onClick={() => handleSelectPet(pet)}>
+            <StyledCard key={pet.id}>
               <CardMedia
                 component='img'
                 height='180'
                 image={pet.image || 'https://via.placeholder.com/150'}
                 alt={pet.name}
+                onClick={() => setSelectedPet(pet)}
               />
-
               <CardContent>
                 <Typography variant='h6'>{pet.name}</Typography>
                 <Typography variant='body2' color='text.secondary'>
                   {pet.species} - {pet.gender}
                 </Typography>
+
+                {/* Botón de menú */}
+                <IconButton
+                  sx={{ position: 'absolute', top: 5, right: 5 }}
+                  onClick={(event) => handleOpenMenu(event, pet.id)}
+                >
+                  <MoreVertIcon />
+                </IconButton>
+
+                {/* Menú de opciones */}
+                <Menu
+                  anchorEl={menuAnchor[pet.id]}
+                  open={Boolean(menuAnchor[pet.id])}
+                  onClose={() => handleCloseMenu(pet.id)}
+                >
+                  <MenuItem onClick={() => handleEditPet(pet)}>Editar</MenuItem>
+                  <MenuItem onClick={() => handleDeletePet(pet.id)}>
+                    Eliminar
+                  </MenuItem>
+                </Menu>
+
                 <Button
                   variant='contained'
                   fullWidth
                   sx={{
                     marginTop: 2,
-                    backgroundColor: '#ffebcc',
-                    color: '#333',
-                    '&:hover': { backgroundColor: '#e6d5b8' },
+                    backgroundColor: '#16a085',
+                    color: 'white',
+                    '&:hover': { backgroundColor: '#13856b' },
                   }}
                   onClick={() =>
                     navigate('/adoption-request', { state: { pet } })
