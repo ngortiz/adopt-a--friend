@@ -277,7 +277,7 @@ const AdoptAPet = () => {
       {/* Modal para agregar mascota */}
       <Modal open={isFormOpen} onClose={handleCloseForm}>
         <ModalContent>
-          <AddPetForm onClose={handleCloseForm} setPets={setPets} pets={pets} />
+          <AddPetForm onClose={handleCloseForm} />
         </ModalContent>
       </Modal>
 

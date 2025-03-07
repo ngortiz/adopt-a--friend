@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { TextField, Button, MenuItem, Typography } from '@mui/material';
+import { post } from 'aws-amplify/api';
 
 // 🎨 Styled Components Mejorados
 const PageContainer = styled.div`
@@ -71,11 +72,11 @@ const StyledButton = styled(Button)`
   }
 `;
 
-const AddPetForm: React.FC<{
+interface AddPetFormProps {
   onClose: () => void;
-  setPets: React.Dispatch<React.SetStateAction<any[]>>;
-  pets: any[];
-}> = ({ onClose, setPets, pets }) => {
+}
+
+const AddPetForm: React.FC<AddPetFormProps> = ({ onClose }) => {
   const [newPet, setNewPet] = useState({
     name: '',
     species: '',
@@ -104,7 +105,7 @@ const AddPetForm: React.FC<{
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (
       !newPet.name ||
       !newPet.species ||
@@ -116,17 +117,39 @@ const AddPetForm: React.FC<{
       alert('⚠️ Por favor, completa todos los campos.');
       return;
     }
+    const body = {
+      name: newPet.name,
+      gender: newPet.gender,
+      species: newPet.species,
+      age: newPet.age,
+      description: newPet.description,
+      image_url:
+        'https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQd1kWKsODGmz1P44kiLTfpeIOkaemYITnaRVOZEn372xCyrpNoQQ_dMDAV4dWLpVTDFekNEtlkJaDnhlTzoQWdNg',
+    };
+    try {
+      const restOperation = post({
+        apiName: 'adoptapetapi',
+        path: '/pets',
+        options: {
+          body: body,
+        },
+      });
+      const response = await restOperation.response;
+      console.log(response);
+    } catch (e) {
+      console.log(e);
+    }
 
-    const updatedPets = [...pets, { id: pets.length + 1, ...newPet }];
-    setPets(updatedPets);
-    localStorage.setItem('pets', JSON.stringify(updatedPets));
+    //const updatedPets = [...pets, { id: pets.length + 1, ...newPet }];
+    //setPets(updatedPets);
+    // localStorage.setItem('pets', JSON.stringify(updatedPets));
     onClose();
   };
 
   return (
     <PageContainer>
       <FormContainer>
-        <Title>🐾 Agregar Nueva Mascota</Title>
+        <Title>🐾 Agregar Nueva Mascota </Title>
 
         <StyledTextField
           label='Nombre'
