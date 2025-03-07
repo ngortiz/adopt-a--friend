@@ -5,16 +5,12 @@ import { post } from 'aws-amplify/api';
 
 // 🎨 Styled Components Mejorados
 const PageContainer = styled.div`
-  display: flex;
   justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  align-items: center !important;
   padding: 20px;
 `;
 
 const FormContainer = styled.div`
-  display: flex;
   flex-direction: column;
   align-items: center;
   padding: 30px;
@@ -23,7 +19,7 @@ const FormContainer = styled.div`
   box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
   width: 100%;
   max-width: 450px;
-  text-align: center;
+  margin-left: 20%;
 `;
 
 const Title = styled(Typography)`
@@ -36,6 +32,7 @@ const Title = styled(Typography)`
 const StyledTextField = styled(TextField)`
   margin-bottom: 15px !important;
   width: 100%;
+  color: #3498db !important;
 `;
 
 const ImagePreview = styled.img`
@@ -48,12 +45,13 @@ const ImagePreview = styled.img`
 `;
 
 const UploadLabel = styled.label`
-  display: inline-block;
-  background: #3498db;
-  color: white;
+  display: block;
+  background: white;
+  color: #3498db;
   padding: 8px 12px;
   border-radius: 6px;
   cursor: pointer;
+  border: 1px solid #dee2e6;
   font-size: 0.9rem;
   transition: background 0.3s;
   &:hover {
@@ -63,12 +61,16 @@ const UploadLabel = styled.label`
 
 const HiddenFileInput = styled.input`
   display: none;
+  color: #3498db;
 `;
 
 const StyledButton = styled(Button)`
-  background-color: #2ecc71 !important;
+  margin: 5px !important;
+  width: 100%;
+  background-color: #16a085 !important;
+  color: white !important;
   &:hover {
-    background-color: #27ae60 !important;
+    background-color: #13856b !important;
   }
 `;
 
@@ -184,7 +186,7 @@ const AddPetForm: React.FC<AddPetFormProps> = ({ onClose }) => {
         </StyledTextField>
 
         <StyledTextField
-          label='Edad (años)'
+          label='Edad'
           name='age'
           type='text'
           value={newPet.age}

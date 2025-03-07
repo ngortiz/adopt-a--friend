@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AdoptAPet from './Pages/AdoptAPet';
-import AdoptionRequest from './Pages/AdoptionRequest';
 import { Amplify } from 'aws-amplify';
 import awsExports from './aws-exports';
 import '@aws-amplify/ui-react/styles.css';
@@ -16,7 +15,6 @@ function App({ signOut, user }: WithAuthenticatorProps) {
         <Route path='/' element={<AdoptAPet />} /> {/* Página principal */}
         <Route path='/adoptar' element={<AdoptAPet />} />{' '}
         {/* Cambiar "adopt" por "adoptar" */}
-        <Route path='/adoption-request' element={<AdoptionRequest />} />
       </Routes>
     </Router>
   );
