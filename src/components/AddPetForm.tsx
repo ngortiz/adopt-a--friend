@@ -61,16 +61,20 @@ const UploadLabel = styled.label`
 
 const HiddenFileInput = styled.input`
   display: none;
-  color: #3498db;
+  color: #13856b;
 `;
 
 const StyledButton = styled(Button)`
   margin: 5px !important;
-  width: 100%;
-  background-color: #16a085 !important;
-  color: white !important;
+  width: 50%;
+  margin-left: 25% !important;
+  border-color: ##13856b !important;
+  background-color: white !important;
+
+  color: #16a085 !important;
   &:hover {
     background-color: #13856b !important;
+    color: white !important;
   }
 `;
 

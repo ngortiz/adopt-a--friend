@@ -8,7 +8,7 @@ import { withAuthenticator } from '@aws-amplify/ui-react';
 
 Amplify.configure(awsExports);
 
-function App({ signOut, user }: WithAuthenticatorProps) {
+function App({}: WithAuthenticatorProps) {
   return (
     <Router>
       <Routes>
