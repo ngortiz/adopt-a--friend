@@ -38,12 +38,12 @@ const StyledSidebar = styled('aside')`
   flex-direction: column;
   align-items: center;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
 `;
 
 const Logo = styled('img')`
   width: 100px;
   margin-bottom: 15px;
+  border-radius: 100%;
 `;
 
 const StyledTitle = styled('h3')`
@@ -81,24 +81,6 @@ const StyledTextField = styled(TextField)`
     }
   }
 `;
-const ModalContent = styled(Box)`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 40%;
-  background: white;
-  border-radius: 10px;
-  padding: 20px;
-  text-align: left;
-  color: #333;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  max-width: 900px;
-  border-radius: 20px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-`;
 
 const FilterButton = styled(Button)`
   margin: 5px !important;
@@ -112,22 +94,34 @@ const FilterButton = styled(Button)`
   }
 `;
 
-const AdoptButton = styled(Button)`
-  margin: 5px !important;
-  margin-left: 10% !important%;
+const ModalContent = styled(Box)`
+  position: absolute;
+  top: 60%;
+  left: 40%;
+  transform: translate(-50%, -50%);
   width: 40%;
-  border-color: 2px solid #16a085;
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: left;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  max-width: 900px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+`;
+
+const AdoptButton = styled(Button)`
+  width: 100%;
+  margin-top: 10px;
+  border: 2px solid #16a085 !important;
   background-color: white !important;
   color: #16a085 !important;
   &:hover {
     background-color: #13856b !important;
     color: white;
   }
-`;
-const MainContent = styled.div`
-  flex: 1;
-  padding: 20px;
-  width: 100%;
 `;
 
 const PetRow = styled.div`
@@ -141,22 +135,27 @@ const PetRow = styled.div`
 
 const StyledCard = styled(Card)`
   position: relative;
+  width: 200px;
   cursor: pointer;
   transition: transform 0.3s, box-shadow 0.3s;
   border-radius: 12px;
   background-color: #ecf0f1;
-
   &:hover {
     transform: scale(1.05);
     box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
   }
 `;
+const MainContent = styled.div`
+  flex: 1;
+  padding: 20px;
+  width: 1000vh;
+`;
 
 const PetImage = styled.img`
-  width: 150px;
-  height: 150px;
-  border-radius: 10px;
+  width: 90%;
+  height: 250px;
   object-fit: cover;
+  border-radius: 10px;
 `;
 
 interface Pet {
@@ -260,7 +259,6 @@ const AdoptAPet = () => {
 
   return (
     <Container>
-      return (
       <StyledSidebar>
         <Logo src={logo} alt='Adopta Un Amigo' />
 
