@@ -13,7 +13,6 @@ import {
   Menu,
   MenuItem,
   IconButton,
-  TextField,
 } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import PetsIcon from '@mui/icons-material/Pets';
@@ -24,11 +23,12 @@ import AddPetForm from '../components/AddPetForm';
 import logo from '../assets/logo.jpg';
 import { get } from 'aws-amplify/api';
 import awsExports from '../aws-exports';
+import PetDetailsModal from './PetDetailsModal';
 
 // 🌟 Styled Components
 const Container = styled.div`
   display: flex;
-  height: 1000vh;
+  min-height: 100vh;
   background-color: #e0e5ec;
 `;
 
@@ -66,30 +66,25 @@ const StyledFilterButton = styled(Button)`
     color: white !important;
   }
 `;
+const StyledButton = styled(Button)`
+  margin: 5px !important;
+  width: 100%;
 
-const StyledTextField = styled(TextField)`
-  flex: 1;
-  background-color: white;
-  border-radius: 5px;
-  & .MuiOutlinedInput-root {
-    & fieldset {
-      border-color: #dcdcdc;
-    }
-    &:hover fieldset {
-      border-color: #b5b5b5;
-    }
-    &.Mui-focused fieldset {
-      border-color: #16a085;
-    }
+  border: 2px solid #16a085 !important;
+  background-color: white !important;
+  color: #16a085 !important;
+  &:hover {
+    background-color: #13856b !important;
+    color: white !important;
   }
 `;
 
-const FilterButton = styled(Button)`
-  margin: 5px !important;
+const AdoptButton = styled(Button)`
   width: 100%;
+  margin-top: 10px;
+  border: 2px solid #16a085 !important;
   background-color: white !important;
   color: #16a085 !important;
-  border-color: 2px solid #16a085 !important;
   &:hover {
     background-color: #13856b !important;
     color: white !important;
@@ -98,8 +93,8 @@ const FilterButton = styled(Button)`
 
 const ModalContent = styled(Box)`
   position: absolute;
-  top: 60%;
-  left: 40%;
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
   width: 40%;
   background: white;
@@ -112,18 +107,6 @@ const ModalContent = styled(Box)`
   gap: 20px;
   max-width: 900px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-`;
-
-const AdoptButton = styled(Button)`
-  width: 100%;
-  margin-top: 10px;
-  border: 2px solid #16a085 !important;
-  background-color: white !important;
-  color: #16a085 !important;
-  &:hover {
-    background-color: #13856b !important;
-    color: white;
-  }
 `;
 
 const PetRow = styled.div`
@@ -150,14 +133,7 @@ const StyledCard = styled(Card)`
 const MainContent = styled.div`
   flex: 1;
   padding: 20px;
-  width: 1000vh;
-`;
-
-const PetImage = styled.img`
-  width: 90%;
-  height: 250px;
-  object-fit: cover;
-  border-radius: 10px;
+  min-width: 200vh;
 `;
 
 interface Pet {
@@ -169,12 +145,23 @@ interface Pet {
   description: string;
   imageUrl: string;
 }
+interface PetDetails {
+  id: string;
+  name: string;
+  species: string;
+  gender: string;
+  age: string;
+  description: string;
+  image_url: string;
+  adoption_status: string;
+}
 
 const AdoptAPet = () => {
   const [pets, setPets] = useState<Pet[]>([]);
   const [selectedSpecies, setSelectedSpecies] = useState<string | null>(null);
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
-  const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
+  const [selectedPet, setSelectedPet] = useState<PetDetails | null>(null);
+
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState<{
     [key: string]: HTMLElement | null;
@@ -183,50 +170,57 @@ const AdoptAPet = () => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   const fetchPets = async () => {
-    try{
+    try {
       const getOperation = get({
         apiName: awsExports.aws_cloud_logic_custom[0].name,
-        path: '/pets'
-      })
+        path: '/pets',
+      });
 
       const response = await getOperation.response;
       const data: unknown = await response.body.json();
-     
-      setPets(data as Pet[])
-    }catch(e){
-      console.log(e)
-    }
-  }
-  useEffect(()=>{
-    fetchPets()
-  }, [])
-  
-  const [searchAgeMin, setSearchAgeMin] = useState('');
-  const [searchAgeMax, setSearchAgeMax] = useState('');
-  const [filteredPets, setFilteredPets] = useState(pets);
 
-  const handleSearch = () => {
-    const filtered = pets.filter(
-      (pet) =>
-        (!selectedSpecies || pet.species === selectedSpecies) &&
-        (!selectedGender || pet.gender === selectedGender) &&
-        (!searchAgeMin || parseInt(pet.age) >= parseInt(searchAgeMin)) &&
-        (!searchAgeMax || parseInt(pet.age) <= parseInt(searchAgeMax))
-    );
-    setFilteredPets(filtered);
+      setPets(data as Pet[]);
+    } catch (e) {
+      console.log(e);
+    }
   };
   useEffect(() => {
-    handleSearch();
-  }, [selectedSpecies, selectedGender, searchAgeMin, searchAgeMax]);
+    fetchPets();
+  }, []);
+
+  const filteredPets = pets.filter(
+    (pet) =>
+      (!selectedSpecies || pet.species === selectedSpecies) &&
+      (!selectedGender || pet.gender === selectedGender)
+  );
 
   const handleAdoptClick = (pet: Pet) => {
-    setSelectedPet(pet);
+    setSelectedPet({
+      id: pet.id,
+      name: pet.name,
+      species: pet.species,
+      gender: pet.gender,
+      age: pet.age,
+      description: pet.description || 'Descripción no disponible',
+      image_url: pet.imageUrl || 'https://via.placeholder.com/250',
+      adoption_status: 'Disponible', // ⚠️ Esto es clave
+    });
+
     setIsAdoptionFormOpen(true);
     setIsDetailsOpen(false);
   };
 
   const handleDetailsClick = (pet: Pet) => {
-    setSelectedPet(pet);
+    setSelectedPet({
+      id: pet.id,
+      name: pet.name,
+      species: pet.species,
+      gender: pet.gender,
+      age: pet.age,
+      description: pet.description,
+      image_url: pet.imageUrl || 'https://via.placeholder.com/250',
+      adoption_status: 'Disponible',
+    });
     setIsDetailsOpen(true);
   };
 
@@ -261,12 +255,22 @@ const AdoptAPet = () => {
   };
 
   const handleEditPet = (pet: Pet) => {
-    setSelectedPet(pet);
+    setSelectedPet({
+      id: pet.id,
+      name: pet.name,
+      species: pet.species,
+      gender: pet.gender,
+      age: pet.age,
+      description: pet.description || 'Descripción no disponible',
+      image_url: pet.imageUrl || 'https://via.placeholder.com/250',
+      adoption_status: 'Disponible', // ⚠️ Esto es clave
+    });
+
     setIsFormOpen(true); // Abrir formulario de edición
   };
   const speciesIcons = {
-    'Perro': <PetsIcon />, // 🐶 Icono de perro
-    'Gato': <FavoriteIcon />, // 🐱 Icono de gato
+    Perro: <PetsIcon />, // 🐶 Icono de perro
+    Gato: <FavoriteIcon />, // 🐱 Icono de gato
   };
 
   return (
@@ -285,68 +289,14 @@ const AdoptAPet = () => {
         <Divider sx={{ width: '100%', margin: '10px 0' }} />
 
         <ListItem disablePadding>
-          <Button
+          <StyledButton
             fullWidth
-            variant='contained'
             startIcon={<UploadFileIcon />}
             onClick={handleOpenForm}
-            sx={{
-              backgroundColor: '#16a085 ',
-              color: 'white',
-              '&:hover': { backgroundColor: '#1f6696' },
-            }}
           >
             Agregar Mascota
-          </Button>
+          </StyledButton>
         </ListItem>
-
-        <Divider sx={{ width: '100%', margin: '10px 0' }} />
-
-        <StyledTitle>Edad</StyledTitle>
-
-        <Box
-          sx={{
-            display: 'flex',
-            gap: 2,
-            width: '100%',
-            backgroundColor: '#f1f1f1',
-            padding: 2,
-            borderRadius: '8px',
-            justifyContent: 'space-between',
-          }}
-        >
-          <StyledTextField
-            label='Desde'
-            variant='outlined'
-            size='small'
-            type='number'
-            onChange={(e) => setSearchAgeMin(e.target.value)}
-          />
-          <StyledTextField
-            label='Hasta'
-            variant='outlined'
-            size='small'
-            type='number'
-            onChange={(e) => setSearchAgeMax(e.target.value)}
-          />
-        </Box>
-
-        <Button
-          variant='contained'
-          onClick={handleSearch}
-          sx={{
-            width: '100%',
-            backgroundColor: '#16a085',
-            color: 'white',
-            borderRadius: '8px',
-            marginTop: '15px',
-            padding: '10px 0',
-            fontWeight: 'bold',
-            '&:hover': { backgroundColor: '#13856b' },
-          }}
-        >
-          Buscar
-        </Button>
       </StyledSidebar>
       <MainContent>
         <Box
@@ -383,7 +333,9 @@ const AdoptAPet = () => {
                   padding: '5px 10px',
                 }}
                 variant='contained'
-                startIcon={species === 'Gato' ? speciesIcons.Gato : speciesIcons.Perro} // Agregar el icono aquí
+                startIcon={
+                  species === 'Gato' ? speciesIcons.Gato : speciesIcons.Perro
+                } // Agregar el icono aquí
               >
                 {species}
               </Button>
@@ -451,38 +403,11 @@ const AdoptAPet = () => {
           <AddPetForm onClose={handleCloseForm} fetchPets={fetchPets} />
         </ModalContent>
       </Modal>
-      {/* Modal de Detalles */}
-      <Modal open={isDetailsOpen} onClose={() => setIsDetailsOpen(false)}>
-        <ModalContent>
-          {selectedPet && (
-            <>
-              <PetImage
-                src={selectedPet.imageUrl || 'https://via.placeholder.com/150'}
-                alt={selectedPet.name}
-              />
-              <Box>
-                <Typography variant='h5'>{selectedPet.name}</Typography>
-                <Typography variant='body1'>
-                  {selectedPet.species} - {selectedPet.gender}
-                </Typography>
-                <Typography variant='body2'>
-                  Edad: {selectedPet.age} años
-                </Typography>
-                <Typography variant='body2'>
-                  Descripción: {selectedPet.description}
-                </Typography>
-                <FilterButton
-                  variant='contained'
-                  fullWidth
-                  onClick={() => setIsDetailsOpen(false)}
-                >
-                  Cerrar
-                </FilterButton>
-              </Box>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
+      <PetDetailsModal
+        open={isDetailsOpen}
+        handleClose={() => setIsDetailsOpen(false)}
+        petDetails={selectedPet}
+      />
     </Container>
   );
 };

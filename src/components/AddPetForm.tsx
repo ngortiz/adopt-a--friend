@@ -3,32 +3,31 @@ import styled from 'styled-components';
 import { TextField, Button, MenuItem, Typography } from '@mui/material';
 import { post } from 'aws-amplify/api';
 import { uploadData } from '@aws-amplify/storage';
-import { v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import awsExports from '../aws-exports';
 
 // 🎨 Styled Components Mejorados
 const PageContainer = styled.div`
   justify-content: center;
-  align-items: center !important;
   padding: 20px;
+  margin-botton: 10%;
 `;
 
 const FormContainer = styled.div`
   flex-direction: column;
-  align-items: center;
-  padding: 30px;
+  align-items: center !important;
+  padding: 60px;
   background: white;
   border-radius: 12px;
   box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
   width: 100%;
-  max-width: 450px;
-  margin-left: 20%;
+  max-width: 561px !important;
 `;
 
 const Title = styled(Typography)`
   font-size: 1.8rem;
   font-weight: bold;
-  color: #2c3e50;
+  color: #13856b;
   margin-bottom: 20px;
 `;
 
@@ -71,7 +70,7 @@ const StyledButton = styled(Button)`
   margin: 5px !important;
   width: 50%;
   margin-left: 25% !important;
-  border-color: ##13856b !important;
+  border-color: #13856b !important;
   background-color: white !important;
 
   color: #16a085 !important;
@@ -95,9 +94,9 @@ const AddPetForm: React.FC<AddPetFormProps> = ({ onClose, fetchPets }) => {
     description: '',
     image: '',
   });
-  
+
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewPet({ ...newPet, [e.target.name]: e.target.value });
@@ -111,7 +110,7 @@ const AddPetForm: React.FC<AddPetFormProps> = ({ onClose, fetchPets }) => {
         const base64String = reader.result as string;
         setNewPet((prev) => ({ ...prev, image: base64String }));
         setImagePreview(base64String);
-        setImageFile(file)
+        setImageFile(file);
       };
       reader.readAsDataURL(file);
     }
@@ -131,11 +130,14 @@ const AddPetForm: React.FC<AddPetFormProps> = ({ onClose, fetchPets }) => {
       return;
     }
 
-    const petId = uuidv4()
+    const petId = uuidv4();
     const { path } = await uploadData({
-      path: `public/${petId}.${imageFile.name.split('.').pop()?.toLocaleLowerCase()}`,
-      data: imageFile
-    }).result
+      path: `public/${petId}.${imageFile.name
+        .split('.')
+        .pop()
+        ?.toLocaleLowerCase()}`,
+      data: imageFile,
+    }).result;
 
     const body = {
       id: petId,
@@ -144,8 +146,7 @@ const AddPetForm: React.FC<AddPetFormProps> = ({ onClose, fetchPets }) => {
       species: newPet.species,
       age: newPet.age,
       description: newPet.description,
-      imageUrl:
-        `https://${awsExports.aws_user_files_s3_bucket}.s3.${awsExports.aws_user_files_s3_bucket_region}.amazonaws.com/${path}`,
+      imageUrl: `https://${awsExports.aws_user_files_s3_bucket}.s3.${awsExports.aws_user_files_s3_bucket_region}.amazonaws.com/${path}`,
     };
     try {
       await post({
@@ -156,8 +157,7 @@ const AddPetForm: React.FC<AddPetFormProps> = ({ onClose, fetchPets }) => {
         },
       });
 
-      await fetchPets()
-      
+      await fetchPets();
     } catch (e) {
       console.log(e);
     }

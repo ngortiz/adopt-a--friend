@@ -19,22 +19,19 @@
           "type": "manual"
         }
       },
+      "auth": {
+        "adoptafriend": {}
+      },
       "function": {
         "petsHandler": {
           "deploymentBucketName": "amplify-adoptafriend-dev-8933c-deployment",
           "s3Key": "amplify-builds/petsHandler-6d6b324b54544b423071-build.zip"
         }
       },
-      "auth": {
-        "adoptafriend": {}
-      },
       "storage": {
-        "petsTable": {},
+        "adoptapetbucket": {},
         "petsInformationTable": {},
-        "adoptapetbucket": {}
-      },
-      "api": {
-        "adoptapetapi": {}
+        "petsTable": {}
       }
     }
   }
