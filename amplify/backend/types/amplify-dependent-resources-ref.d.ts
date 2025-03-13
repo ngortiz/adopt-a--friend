@@ -27,7 +27,19 @@ export type AmplifyDependentResourcesAttributes = {
     }
   },
   "storage": {
-    "pets": {
+    "adoptapetbucket": {
+      "BucketName": "string",
+      "Region": "string"
+    },
+    "petsInformationTable": {
+      "Arn": "string",
+      "Name": "string",
+      "PartitionKeyName": "string",
+      "PartitionKeyType": "string",
+      "Region": "string",
+      "StreamArn": "string"
+    },
+    "petsTable": {
       "Arn": "string",
       "Name": "string",
       "PartitionKeyName": "string",

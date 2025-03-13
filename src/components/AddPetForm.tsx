@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { TextField, Button, MenuItem, Typography } from '@mui/material';
 import { post } from 'aws-amplify/api';
+import { uploadData } from '@aws-amplify/storage';
+import { v4 as uuidv4} from 'uuid';
+import awsExports from '../aws-exports';
 
 // 🎨 Styled Components Mejorados
 const PageContainer = styled.div`
@@ -80,9 +83,10 @@ const StyledButton = styled(Button)`
 
 interface AddPetFormProps {
   onClose: () => void;
+  fetchPets: () => void;
 }
 
-const AddPetForm: React.FC<AddPetFormProps> = ({ onClose }) => {
+const AddPetForm: React.FC<AddPetFormProps> = ({ onClose, fetchPets }) => {
   const [newPet, setNewPet] = useState({
     name: '',
     species: '',
@@ -91,8 +95,9 @@ const AddPetForm: React.FC<AddPetFormProps> = ({ onClose }) => {
     description: '',
     image: '',
   });
-
+  
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewPet({ ...newPet, [e.target.name]: e.target.value });
@@ -106,6 +111,7 @@ const AddPetForm: React.FC<AddPetFormProps> = ({ onClose }) => {
         const base64String = reader.result as string;
         setNewPet((prev) => ({ ...prev, image: base64String }));
         setImagePreview(base64String);
+        setImageFile(file)
       };
       reader.readAsDataURL(file);
     }
@@ -118,37 +124,44 @@ const AddPetForm: React.FC<AddPetFormProps> = ({ onClose }) => {
       !newPet.gender ||
       !newPet.age ||
       !newPet.description ||
-      !newPet.image
+      !newPet.image ||
+      !imageFile
     ) {
       alert('⚠️ Por favor, completa todos los campos.');
       return;
     }
+
+    const petId = uuidv4()
+    const { path } = await uploadData({
+      path: `public/${petId}.${imageFile.name.split('.').pop()?.toLocaleLowerCase()}`,
+      data: imageFile
+    }).result
+
     const body = {
+      id: petId,
       name: newPet.name,
       gender: newPet.gender,
       species: newPet.species,
       age: newPet.age,
       description: newPet.description,
-      image_url:
-        'https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQd1kWKsODGmz1P44kiLTfpeIOkaemYITnaRVOZEn372xCyrpNoQQ_dMDAV4dWLpVTDFekNEtlkJaDnhlTzoQWdNg',
+      imageUrl:
+        `https://${awsExports.aws_user_files_s3_bucket}.s3.${awsExports.aws_user_files_s3_bucket_region}.amazonaws.com/${path}`,
     };
     try {
-      const restOperation = post({
-        apiName: 'adoptapetapi',
+      await post({
+        apiName: awsExports.aws_cloud_logic_custom[0].name,
         path: '/pets',
         options: {
           body: body,
         },
       });
-      const response = await restOperation.response;
-      console.log(response);
+
+      await fetchPets()
+      
     } catch (e) {
       console.log(e);
     }
 
-    //const updatedPets = [...pets, { id: pets.length + 1, ...newPet }];
-    //setPets(updatedPets);
-    // localStorage.setItem('pets', JSON.stringify(updatedPets));
     onClose();
   };
 

@@ -22,6 +22,8 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AddPetForm from '../components/AddPetForm';
 import logo from '../assets/logo.jpg';
+import { get } from 'aws-amplify/api';
+import awsExports from '../aws-exports';
 
 // 🌟 Styled Components
 const Container = styled.div`
@@ -159,32 +161,46 @@ const PetImage = styled.img`
 `;
 
 interface Pet {
-  id: number;
+  id: string;
   name: string;
   species: string;
   gender: string;
   age: string;
   description: string;
-  image: string;
+  imageUrl: string;
 }
 
 const AdoptAPet = () => {
-  const getStoredPets = (): Pet[] => {
-    const storedPets = localStorage.getItem('pets');
-    return storedPets ? JSON.parse(storedPets) : [];
-  };
-
-  const [pets, setPets] = useState<Pet[]>(getStoredPets);
+  const [pets, setPets] = useState<Pet[]>([]);
   const [selectedSpecies, setSelectedSpecies] = useState<string | null>(null);
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState<{
-    [key: number]: HTMLElement | null;
+    [key: string]: HTMLElement | null;
   }>({});
-
   const [isAdoptionFormOpen, setIsAdoptionFormOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+
+  const fetchPets = async () => {
+    try{
+      const getOperation = get({
+        apiName: awsExports.aws_cloud_logic_custom[0].name,
+        path: '/pets'
+      })
+
+      const response = await getOperation.response;
+      const data: unknown = await response.body.json();
+     
+      setPets(data as Pet[])
+    }catch(e){
+      console.log(e)
+    }
+  }
+  useEffect(()=>{
+    fetchPets()
+  }, [])
+  
   const [searchAgeMin, setSearchAgeMin] = useState('');
   const [searchAgeMax, setSearchAgeMax] = useState('');
   const [filteredPets, setFilteredPets] = useState(pets);
@@ -214,10 +230,6 @@ const AdoptAPet = () => {
     setIsDetailsOpen(true);
   };
 
-  useEffect(() => {
-    localStorage.setItem('pets', JSON.stringify(pets));
-  }, [pets]);
-
   const handleCloseAdoptionForm = () => {
     setIsAdoptionFormOpen(false);
     setSelectedPet(null);
@@ -234,16 +246,16 @@ const AdoptAPet = () => {
 
   const handleOpenMenu = (
     event: React.MouseEvent<HTMLButtonElement>,
-    id: number
+    id: string
   ) => {
     setMenuAnchor((prev) => ({ ...prev, [id]: event.currentTarget }));
   };
 
-  const handleCloseMenu = (id: number) => {
+  const handleCloseMenu = (id: string) => {
     setMenuAnchor((prev) => ({ ...prev, [id]: null }));
   };
 
-  const handleDeletePet = (id: number) => {
+  const handleDeletePet = (id: string) => {
     setPets((prevPets) => prevPets.filter((pet) => pet.id !== id));
     handleCloseMenu(id);
   };
@@ -253,8 +265,8 @@ const AdoptAPet = () => {
     setIsFormOpen(true); // Abrir formulario de edición
   };
   const speciesIcons = {
-    Perro: <PetsIcon />, // 🐶 Icono de perro
-    Gato: <FavoriteIcon />, // 🐱 Icono de gato
+    'Perro': <PetsIcon />, // 🐶 Icono de perro
+    'Gato': <FavoriteIcon />, // 🐱 Icono de gato
   };
 
   return (
@@ -371,7 +383,7 @@ const AdoptAPet = () => {
                   padding: '5px 10px',
                 }}
                 variant='contained'
-                startIcon={speciesIcons[species]} // Agregar el icono aquí
+                startIcon={species === 'Gato' ? speciesIcons.Gato : speciesIcons.Perro} // Agregar el icono aquí
               >
                 {species}
               </Button>
@@ -385,7 +397,7 @@ const AdoptAPet = () => {
               <CardMedia
                 component='img'
                 height='180'
-                image={pet.image || 'https://via.placeholder.com/150'}
+                image={pet.imageUrl || 'https://via.placeholder.com/150'}
                 alt={pet.name}
                 onClick={() => handleDetailsClick(pet)}
               />
@@ -436,7 +448,7 @@ const AdoptAPet = () => {
       {/* Modal para agregar mascota */}
       <Modal open={isFormOpen} onClose={handleCloseForm}>
         <ModalContent>
-          <AddPetForm onClose={handleCloseForm} />
+          <AddPetForm onClose={handleCloseForm} fetchPets={fetchPets} />
         </ModalContent>
       </Modal>
       {/* Modal de Detalles */}
@@ -445,7 +457,7 @@ const AdoptAPet = () => {
           {selectedPet && (
             <>
               <PetImage
-                src={selectedPet.image || 'https://via.placeholder.com/150'}
+                src={selectedPet.imageUrl || 'https://via.placeholder.com/150'}
                 alt={selectedPet.name}
               />
               <Box>
