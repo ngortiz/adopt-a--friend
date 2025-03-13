@@ -200,6 +200,7 @@ const AdoptAPet = () => {
   useEffect(()=>{
     fetchPets()
   }, [])
+  
   const [searchAgeMin, setSearchAgeMin] = useState('');
   const [searchAgeMax, setSearchAgeMax] = useState('');
   const [filteredPets, setFilteredPets] = useState(pets);
@@ -264,8 +265,8 @@ const AdoptAPet = () => {
     setIsFormOpen(true); // Abrir formulario de edición
   };
   const speciesIcons = {
-    Perro: <PetsIcon />, // 🐶 Icono de perro
-    Gato: <FavoriteIcon />, // 🐱 Icono de gato
+    'Perro': <PetsIcon />, // 🐶 Icono de perro
+    'Gato': <FavoriteIcon />, // 🐱 Icono de gato
   };
 
   return (
@@ -382,7 +383,7 @@ const AdoptAPet = () => {
                   padding: '5px 10px',
                 }}
                 variant='contained'
-                startIcon={speciesIcons[species]} // Agregar el icono aquí
+                startIcon={species === 'Gato' ? speciesIcons.Gato : speciesIcons.Perro} // Agregar el icono aquí
               >
                 {species}
               </Button>
