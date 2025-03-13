@@ -1,20 +1,20 @@
 {
-  "resourceName": "pets",
-  "tableName": "pets",
+  "resourceName": "petsInformationTable",
+  "tableName": "petsInformationTable",
   "partitionKey": {
     "fieldName": "id",
     "fieldType": "string"
   },
   "gsi": [
     {
-      "name": "gsi_gender",
+      "name": "gsiPetGender",
       "partitionKey": {
         "fieldName": "gender",
         "fieldType": "string"
       }
     },
     {
-      "name": "gsi_species",
+      "name": "gsiPetsSpecies",
       "partitionKey": {
         "fieldName": "species",
         "fieldType": "string"

@@ -46,16 +46,13 @@
       "build": true,
       "dependsOn": [
         {
-          "attributeEnvMap": {
-            "Arn": "TABLE_ARN",
-            "Name": "TABLE_NAME"
-          },
           "attributes": [
             "Name",
-            "Arn"
+            "Arn",
+            "StreamArn"
           ],
           "category": "storage",
-          "resourceName": "pets"
+          "resourceName": "petsInformationTable"
         }
       ],
       "providerPlugin": "awscloudformation",
@@ -104,7 +101,16 @@
     }
   },
   "storage": {
-    "pets": {
+    "adoptapetbucket": {
+      "dependsOn": [],
+      "providerPlugin": "awscloudformation",
+      "service": "S3"
+    },
+    "petsInformationTable": {
+      "providerPlugin": "awscloudformation",
+      "service": "DynamoDB"
+    },
+    "petsTable": {
       "providerPlugin": "awscloudformation",
       "service": "DynamoDB"
     }
