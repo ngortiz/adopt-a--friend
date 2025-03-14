@@ -80,6 +80,24 @@ const SubmitButton = styled.button`
     border: 1px solid #13856b;
   }
 `;
+const Notification = styled.div<{ show: boolean; type: 'success' | 'error' }>`
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  padding: 15px;
+  color: #13856b;
+  background-color: ${(props) =>
+    props.type === 'success' ? '#dff0d8' : '#f2dede'};
+  border: 1px solid transparent;
+  border-color: ${(props) =>
+    props.type === 'success' ? '#d6e9c6' : '#ebccd1'};
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 9999;
+  opacity: ${(props) => (props.show ? 1 : 0)};
+  transform: translateY(${(props) => (props.show ? '0' : '-20px')});
+  transition: opacity 0.5s ease, transform 0.5s ease;
+`;
 
 interface PetFormProps {
   onClose: () => void;
@@ -97,6 +115,16 @@ const AddPetForm: React.FC<PetFormProps> = ({ onClose, fetchPets }) => {
 
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [notification, setNotification] = useState<{
+    show: boolean;
+    message: string;
+    type: 'success' | 'error';
+  }>({
+    show: false,
+    message: '',
+    type: 'success',
+  });
   const formRef = useRef<HTMLFormElement | null>(null);
 
   useEffect(() => {
@@ -135,6 +163,8 @@ const AddPetForm: React.FC<PetFormProps> = ({ onClose, fetchPets }) => {
     }
 
     try {
+      setLoading(true);
+
       const { path } = await uploadData({
         path: `public/${petId}.${fileExtension}`,
         data: image,
@@ -155,10 +185,29 @@ const AddPetForm: React.FC<PetFormProps> = ({ onClose, fetchPets }) => {
       });
 
       await fetchPets();
+      setNotification({
+        show: true,
+        message: 'Mascota registrada con éxito.',
+        type: 'success',
+      });
+      setTimeout(
+        () => setNotification({ show: false, message: '', type: 'success' }),
+        3000
+      );
       onClose();
     } catch (error) {
       console.error('Error al subir la imagen:', error);
-      alert('Hubo un error al subir la imagen.');
+      setNotification({
+        show: true,
+        message: 'Hubo un error al subir la imagen.',
+        type: 'error',
+      });
+      setTimeout(
+        () => setNotification({ show: false, message: '', type: 'success' }),
+        3000
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -227,8 +276,13 @@ const AddPetForm: React.FC<PetFormProps> = ({ onClose, fetchPets }) => {
             required
           />
         </FormGroup>
-        <SubmitButton type='submit'>Registrar Mascota</SubmitButton>
+        <SubmitButton type='submit' disabled={loading}>
+          {loading ? 'Registrando...' : 'Registrar Mascota'}
+        </SubmitButton>
       </Form>
+      <Notification show={notification.show} type={notification.type}>
+        {notification.message}
+      </Notification>
     </Box>
   );
 };

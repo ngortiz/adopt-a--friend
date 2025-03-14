@@ -1,15 +1,14 @@
+import { useState } from 'react';
 import { Modal, Box, Typography, TextField, Button } from '@mui/material';
 import styled from 'styled-components';
 
-// Interfaz para definir los tipos de las props
 interface AdoptionRequestProps {
   open: boolean;
   onClose: () => void;
   selectedPet: { name: string } | null;
-  onSubmit: (event: React.FormEvent) => void;
+  onSubmit: (event: React.FormEvent) => void; // ✅ Agregar esto
 }
 
-// Styled Components
 const StyledModalContent = styled(Box)`
   position: absolute;
   top: 50%;
@@ -51,15 +50,12 @@ const StyledTextField = styled(TextField)`
 `;
 
 const StyledSubmitButton = styled(Button)`
-  grid-column: span 2;
   padding: 1rem;
   width: 50%;
-  margin: 0 auto;
   font-size: 1.1rem;
   background-color: #13856b;
   color: #ffffff;
   border-radius: 30px;
-  cursor: pointer;
   font-weight: bold;
   transition: all 0.3s ease;
   &:hover {
@@ -69,69 +65,91 @@ const StyledSubmitButton = styled(Button)`
   }
 `;
 
-// Componente de solicitud de adopción
 const AdoptionRequest: React.FC<AdoptionRequestProps> = ({
   open,
   onClose,
   selectedPet,
-  onSubmit,
 }) => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [reason, setReason] = useState('');
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!selectedPet) return;
+
+    const whatsappNumber = '+595986381101';
+
+    const message =
+      `Hola! Quiero adoptar a *${selectedPet.name}* 🐶\n\n` +
+      `👤 *Nombre:* ${name}\n` +
+      `📧 *Correo:* ${email}\n` +
+      `📞 *Teléfono:* ${phone}\n` +
+      `📝 *Motivo:* ${reason}`;
+
+    const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+      message
+    )}`;
+
+    window.open(whatsappURL, '_blank');
+
+    onClose(); // Cerrar el modal después de enviar
+  };
+
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #f5f7fa, #e3f2fd)',
-        padding: '50px',
-      }}
-    >
-      <Modal open={open} onClose={onClose}>
-        <StyledModalContent>
-          {selectedPet && (
-            <>
-              <FormTitle variant='h5'>📝 Solicitud de Adopción</FormTitle>
-              <PetName variant='h6'>🐶 Adoptando a: {selectedPet.name}</PetName>
-              <form onSubmit={onSubmit}>
-                <StyledTextField
-                  label='Tu Nombre'
-                  fullWidth
-                  required
-                  sx={{ marginBottom: 2 }}
-                />
-                <StyledTextField
-                  label='Correo Electrónico'
-                  type='email'
-                  fullWidth
-                  required
-                  sx={{ marginBottom: 2 }}
-                />
-                <StyledTextField
-                  label='Teléfono'
-                  type='tel'
-                  fullWidth
-                  required
-                  sx={{ marginBottom: 2 }}
-                />
-                <StyledTextField
-                  label='¿Por qué deseas adoptar?'
-                  multiline
-                  rows={4}
-                  fullWidth
-                  required
-                  sx={{ marginBottom: 2 }}
-                />
-                <StyledSubmitButton type='submit' fullWidth>
-                  Enviar Solicitud
-                </StyledSubmitButton>
-              </form>
-            </>
-          )}
-        </StyledModalContent>
-      </Modal>
-    </Box>
+    <Modal open={open} onClose={onClose}>
+      <StyledModalContent>
+        {selectedPet && (
+          <>
+            <FormTitle variant='h5'>📝 Solicitud de Adopción</FormTitle>
+            <PetName variant='h6'>🐶 Adoptando a: {selectedPet.name}</PetName>
+            <form onSubmit={handleSubmit}>
+              <StyledTextField
+                label='Tu Nombre'
+                fullWidth
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                sx={{ marginBottom: 2 }}
+              />
+              <StyledTextField
+                label='Correo Electrónico'
+                type='email'
+                fullWidth
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                sx={{ marginBottom: 2 }}
+              />
+              <StyledTextField
+                label='Teléfono'
+                type='tel'
+                fullWidth
+                required
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                sx={{ marginBottom: 2 }}
+              />
+              <StyledTextField
+                label='¿Por qué deseas adoptar?'
+                multiline
+                rows={4}
+                fullWidth
+                required
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                sx={{ marginBottom: 2 }}
+              />
+              <StyledSubmitButton type='submit' fullWidth>
+                Enviar Solicitud
+              </StyledSubmitButton>
+            </form>
+          </>
+        )}
+      </StyledModalContent>
+    </Modal>
   );
 };
 

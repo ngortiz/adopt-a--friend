@@ -6,12 +6,12 @@ import styled from 'styled-components';
 export interface PetDetails {
   id: string;
   name: string;
-  image_url: string;
+  imageUrl: string;
   species: string;
   gender: string;
   age: string;
   description: string;
-  adoption_status: string;
+  adoptionStatus: string;
 }
 
 interface PetDetailsModalProps {
@@ -122,7 +122,7 @@ const PetDetailsModal: React.FC<PetDetailsModalProps> = ({
         <StyledDialogContent>
           <CardContainer>
             <StyledImage
-              src={petDetails.image_url || 'https://via.placeholder.com/250'}
+              src={petDetails.imageUrl || 'https://via.placeholder.com/250'}
               alt={petDetails.name}
             />
 
@@ -149,7 +149,7 @@ const PetDetailsModal: React.FC<PetDetailsModalProps> = ({
               </DetailRow>
               <DetailRow>
                 <StyledLabel>Estado de Adopción:</StyledLabel>
-                <StyledSpan>{petDetails.adoption_status}</StyledSpan>
+                <StyledSpan>{petDetails.adoptionStatus}</StyledSpan>
               </DetailRow>
             </InfoContainer>
           </CardContainer>

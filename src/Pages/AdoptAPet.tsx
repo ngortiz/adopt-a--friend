@@ -13,6 +13,7 @@ import {
   Menu,
   MenuItem,
   IconButton,
+  Pagination,
 } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import PetsIcon from '@mui/icons-material/Pets';
@@ -28,24 +29,35 @@ import PetDetailsModal from './PetDetailsModal';
 // 🌟 Styled Components
 const Container = styled.div`
   display: flex;
-  min-height: 100vh;
+  height: 100vh; // ✅ Ocupa toda la pantalla
+  width: 100vw;
   background-color: #e0e5ec;
+  overflow: hidden; // ✅ Evita barras negras
 `;
-
 const StyledSidebar = styled('aside')`
-  width: 250px;
+  width: 220px;
   background-color: #ffffff;
   padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  height: 100vh; // ✅ Hace que ocupe toda la altura
+  overflow-y: auto;
+
+  @media (min-width: 768px) {
+    width: 250px;
+  }
 `;
 
 const Logo = styled('img')`
-  width: 100px;
+  width: 80px;
   margin-bottom: 15px;
-  border-radius: 100%;
+  border-radius: 50%;
+
+  @media (min-width: 768px) {
+    width: 100px;
+  }
 `;
 
 const StyledTitle = styled('h3')`
@@ -69,10 +81,10 @@ const StyledFilterButton = styled(Button)`
 const StyledButton = styled(Button)`
   margin: 5px !important;
   width: 100%;
-
   border: 2px solid #16a085 !important;
   background-color: white !important;
   color: #16a085 !important;
+
   &:hover {
     background-color: #13856b !important;
     color: white !important;
@@ -112,28 +124,50 @@ const ModalContent = styled(Box)`
 const PetRow = styled.div`
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 20px;
-  justify-content: flex-start;
   padding: 10px;
-  color: #333;
 `;
 
 const StyledCard = styled(Card)`
   position: relative;
-  width: 200px;
+  width: 100%;
+  max-width: 300px;
   cursor: pointer;
   transition: transform 0.3s, box-shadow 0.3s;
   border-radius: 12px;
   background-color: #ecf0f1;
+
   &:hover {
     transform: scale(1.05);
     box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
   }
 `;
+
 const MainContent = styled.div`
   flex: 1;
   padding: 20px;
-  min-width: 200vh;
+  width: 100%;
+  max-width: 1200px;
+  margin: auto;
+`;
+const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+`;
+const FiltersContainer = styled.div`
+  position: fixed;
+  top: 17px;
+  left: 14%;
+  width: 80%;
+  background: #e0e5ec;
+  padding: 22px;
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  border-bottom: 2px solid #ccc;
 `;
 
 interface Pet {
@@ -152,8 +186,8 @@ interface PetDetails {
   gender: string;
   age: string;
   description: string;
-  image_url: string;
-  adoption_status: string;
+  imageUrl: string;
+  adoptionStatus: string;
 }
 
 const AdoptAPet = () => {
@@ -161,6 +195,8 @@ const AdoptAPet = () => {
   const [selectedSpecies, setSelectedSpecies] = useState<string | null>(null);
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
   const [selectedPet, setSelectedPet] = useState<PetDetails | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 6;
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState<{
@@ -194,6 +230,18 @@ const AdoptAPet = () => {
       (!selectedGender || pet.gender === selectedGender)
   );
 
+  // Paginación de los resultados filtrados
+  const totalPages = Math.ceil(filteredPets.length / pageSize);
+  const paginatedPets = filteredPets.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+  // Resetear la página a 1 cuando se aplica un filtro
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedSpecies, selectedGender]);
+
   const handleAdoptClick = (pet: Pet) => {
     setSelectedPet({
       id: pet.id,
@@ -202,8 +250,8 @@ const AdoptAPet = () => {
       gender: pet.gender,
       age: pet.age,
       description: pet.description || 'Descripción no disponible',
-      image_url: pet.imageUrl || 'https://via.placeholder.com/250',
-      adoption_status: 'Disponible', // ⚠️ Esto es clave
+      imageUrl: pet.imageUrl || 'https://via.placeholder.com/250',
+      adoptionStatus: 'Disponible',
     });
 
     setIsAdoptionFormOpen(true);
@@ -218,8 +266,8 @@ const AdoptAPet = () => {
       gender: pet.gender,
       age: pet.age,
       description: pet.description,
-      image_url: pet.imageUrl || 'https://via.placeholder.com/250',
-      adoption_status: 'Disponible',
+      imageUrl: pet.imageUrl || 'https://via.placeholder.com/250',
+      adoptionStatus: 'Disponible',
     });
     setIsDetailsOpen(true);
   };
@@ -262,15 +310,15 @@ const AdoptAPet = () => {
       gender: pet.gender,
       age: pet.age,
       description: pet.description || 'Descripción no disponible',
-      image_url: pet.imageUrl || 'https://via.placeholder.com/250',
-      adoption_status: 'Disponible', // ⚠️ Esto es clave
+      imageUrl: pet.imageUrl || 'https://via.placeholder.com/250',
+      adoptionStatus: 'Disponible',
     });
 
-    setIsFormOpen(true); // Abrir formulario de edición
+    setIsFormOpen(true);
   };
   const speciesIcons = {
-    Perro: <PetsIcon />, // 🐶 Icono de perro
-    Gato: <FavoriteIcon />, // 🐱 Icono de gato
+    Perro: <PetsIcon />,
+    Gato: <FavoriteIcon />,
   };
 
   return (
@@ -298,53 +346,35 @@ const AdoptAPet = () => {
           </StyledButton>
         </ListItem>
       </StyledSidebar>
+
       <MainContent>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            padding: 2,
-            width: '100%',
-            position: 'relative',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              gap: 1,
-              padding: 1,
-              width: '100%',
-            }}
-          >
+        <Box sx={{ paddingTop: '60px' }}>
+          {' '}
+          <FiltersContainer>
             {['Perro', 'Gato'].map((species) => (
               <Button
                 key={species}
                 onClick={() => setSelectedSpecies(species)}
                 sx={{
-                  marginTop: 1,
-                  marginRight: 1,
-                  backgroundColor: 'white',
-                  color: '#16a085',
-                  border: '1px solid#16a085',
-                  '&:hover': {
-                    backgroundColor: '#13856b',
-                    color: 'white',
-                  },
-                  padding: '5px 10px',
+                  backgroundColor:
+                    selectedSpecies === species ? '#13856b' : 'white',
+                  color: selectedSpecies === species ? 'white' : '#16a085',
+                  border: '1px solid #16a085',
+                  '&:hover': { backgroundColor: '#13856b', color: 'white' },
                 }}
                 variant='contained'
                 startIcon={
                   species === 'Gato' ? speciesIcons.Gato : speciesIcons.Perro
-                } // Agregar el icono aquí
+                }
               >
                 {species}
               </Button>
             ))}
-          </Box>
+          </FiltersContainer>
         </Box>
-        ;
+
         <PetRow>
-          {filteredPets.map((pet) => (
+          {paginatedPets.map((pet) => (
             <StyledCard key={pet.id}>
               <CardMedia
                 component='img'
@@ -390,13 +420,26 @@ const AdoptAPet = () => {
             </StyledCard>
           ))}
         </PetRow>
+
+        {/* Paginación con MUI */}
+        {totalPages > 1 && (
+          <PaginationContainer>
+            <Pagination
+              count={totalPages}
+              page={currentPage}
+              onChange={(_, value) => setCurrentPage(value)}
+              color='primary'
+            />
+          </PaginationContainer>
+        )}
       </MainContent>
       <AdoptionRequest
         open={isAdoptionFormOpen}
         onClose={handleCloseAdoptionForm}
         selectedPet={selectedPet}
-        onSubmit={handleAdoptionSubmit}
+        onSubmit={handleAdoptionSubmit} // ✅ Pasar la función de manejo de envío
       />
+
       {/* Modal para agregar mascota */}
       <Modal open={isFormOpen} onClose={handleCloseForm}>
         <ModalContent>
