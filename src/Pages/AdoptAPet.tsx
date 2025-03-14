@@ -13,7 +13,7 @@ import {
   Menu,
   MenuItem,
   IconButton,
-  TextField,
+  Pagination,
 } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import PetsIcon from '@mui/icons-material/Pets';
@@ -24,28 +24,40 @@ import AddPetForm from '../components/AddPetForm';
 import logo from '../assets/logo.jpg';
 import { get } from 'aws-amplify/api';
 import awsExports from '../aws-exports';
+import PetDetailsModal from './PetDetailsModal';
 
 // 🌟 Styled Components
 const Container = styled.div`
   display: flex;
-  height: 1000vh;
+  height: 100vh; // ✅ Ocupa toda la pantalla
+  width: 100vw;
   background-color: #e0e5ec;
+  overflow: hidden; // ✅ Evita barras negras
 `;
-
 const StyledSidebar = styled('aside')`
-  width: 250px;
+  width: 220px;
   background-color: #ffffff;
   padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  height: 100vh; // ✅ Hace que ocupe toda la altura
+  overflow-y: auto;
+
+  @media (min-width: 768px) {
+    width: 250px;
+  }
 `;
 
 const Logo = styled('img')`
-  width: 100px;
+  width: 80px;
   margin-bottom: 15px;
-  border-radius: 100%;
+  border-radius: 50%;
+
+  @media (min-width: 768px) {
+    width: 100px;
+  }
 `;
 
 const StyledTitle = styled('h3')`
@@ -66,30 +78,25 @@ const StyledFilterButton = styled(Button)`
     color: white !important;
   }
 `;
+const StyledButton = styled(Button)`
+  margin: 5px !important;
+  width: 100%;
+  border: 2px solid #16a085 !important;
+  background-color: white !important;
+  color: #16a085 !important;
 
-const StyledTextField = styled(TextField)`
-  flex: 1;
-  background-color: white;
-  border-radius: 5px;
-  & .MuiOutlinedInput-root {
-    & fieldset {
-      border-color: #dcdcdc;
-    }
-    &:hover fieldset {
-      border-color: #b5b5b5;
-    }
-    &.Mui-focused fieldset {
-      border-color: #16a085;
-    }
+  &:hover {
+    background-color: #13856b !important;
+    color: white !important;
   }
 `;
 
-const FilterButton = styled(Button)`
-  margin: 5px !important;
+const AdoptButton = styled(Button)`
   width: 100%;
+  margin-top: 10px;
+  border: 2px solid #16a085 !important;
   background-color: white !important;
   color: #16a085 !important;
-  border-color: 2px solid #16a085 !important;
   &:hover {
     background-color: #13856b !important;
     color: white !important;
@@ -98,8 +105,8 @@ const FilterButton = styled(Button)`
 
 const ModalContent = styled(Box)`
   position: absolute;
-  top: 60%;
-  left: 40%;
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
   width: 40%;
   background: white;
@@ -114,50 +121,53 @@ const ModalContent = styled(Box)`
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 `;
 
-const AdoptButton = styled(Button)`
-  width: 100%;
-  margin-top: 10px;
-  border: 2px solid #16a085 !important;
-  background-color: white !important;
-  color: #16a085 !important;
-  &:hover {
-    background-color: #13856b !important;
-    color: white;
-  }
-`;
-
 const PetRow = styled.div`
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 20px;
-  justify-content: flex-start;
   padding: 10px;
-  color: #333;
 `;
 
 const StyledCard = styled(Card)`
   position: relative;
-  width: 200px;
+  width: 100%;
+  max-width: 300px;
   cursor: pointer;
   transition: transform 0.3s, box-shadow 0.3s;
   border-radius: 12px;
   background-color: #ecf0f1;
+
   &:hover {
     transform: scale(1.05);
     box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
   }
 `;
+
 const MainContent = styled.div`
   flex: 1;
   padding: 20px;
-  width: 1000vh;
+  width: 100%;
+  max-width: 1200px;
+  margin: auto;
 `;
-
-const PetImage = styled.img`
-  width: 90%;
-  height: 250px;
-  object-fit: cover;
-  border-radius: 10px;
+const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+`;
+const FiltersContainer = styled.div`
+  position: fixed;
+  top: 17px;
+  left: 14%;
+  width: 80%;
+  background: #e0e5ec;
+  padding: 22px;
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  border-bottom: 2px solid #ccc;
 `;
 
 interface Pet {
@@ -169,12 +179,25 @@ interface Pet {
   description: string;
   imageUrl: string;
 }
+interface PetDetails {
+  id: string;
+  name: string;
+  species: string;
+  gender: string;
+  age: string;
+  description: string;
+  imageUrl: string;
+  adoptionStatus: string;
+}
 
 const AdoptAPet = () => {
   const [pets, setPets] = useState<Pet[]>([]);
   const [selectedSpecies, setSelectedSpecies] = useState<string | null>(null);
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
-  const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
+  const [selectedPet, setSelectedPet] = useState<PetDetails | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 6;
+
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState<{
     [key: string]: HTMLElement | null;
@@ -183,50 +206,69 @@ const AdoptAPet = () => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   const fetchPets = async () => {
-    try{
+    try {
       const getOperation = get({
         apiName: awsExports.aws_cloud_logic_custom[0].name,
-        path: '/pets'
-      })
+        path: '/pets',
+      });
 
       const response = await getOperation.response;
       const data: unknown = await response.body.json();
-     
-      setPets(data as Pet[])
-    }catch(e){
-      console.log(e)
-    }
-  }
-  useEffect(()=>{
-    fetchPets()
-  }, [])
-  
-  const [searchAgeMin, setSearchAgeMin] = useState('');
-  const [searchAgeMax, setSearchAgeMax] = useState('');
-  const [filteredPets, setFilteredPets] = useState(pets);
 
-  const handleSearch = () => {
-    const filtered = pets.filter(
-      (pet) =>
-        (!selectedSpecies || pet.species === selectedSpecies) &&
-        (!selectedGender || pet.gender === selectedGender) &&
-        (!searchAgeMin || parseInt(pet.age) >= parseInt(searchAgeMin)) &&
-        (!searchAgeMax || parseInt(pet.age) <= parseInt(searchAgeMax))
-    );
-    setFilteredPets(filtered);
+      setPets(data as Pet[]);
+    } catch (e) {
+      console.log(e);
+    }
   };
   useEffect(() => {
-    handleSearch();
-  }, [selectedSpecies, selectedGender, searchAgeMin, searchAgeMax]);
+    fetchPets();
+  }, []);
+
+  const filteredPets = pets.filter(
+    (pet) =>
+      (!selectedSpecies || pet.species === selectedSpecies) &&
+      (!selectedGender || pet.gender === selectedGender)
+  );
+
+  // Paginación de los resultados filtrados
+  const totalPages = Math.ceil(filteredPets.length / pageSize);
+  const paginatedPets = filteredPets.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+  // Resetear la página a 1 cuando se aplica un filtro
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedSpecies, selectedGender]);
 
   const handleAdoptClick = (pet: Pet) => {
-    setSelectedPet(pet);
+    setSelectedPet({
+      id: pet.id,
+      name: pet.name,
+      species: pet.species,
+      gender: pet.gender,
+      age: pet.age,
+      description: pet.description || 'Descripción no disponible',
+      imageUrl: pet.imageUrl || 'https://via.placeholder.com/250',
+      adoptionStatus: 'Disponible',
+    });
+
     setIsAdoptionFormOpen(true);
     setIsDetailsOpen(false);
   };
 
   const handleDetailsClick = (pet: Pet) => {
-    setSelectedPet(pet);
+    setSelectedPet({
+      id: pet.id,
+      name: pet.name,
+      species: pet.species,
+      gender: pet.gender,
+      age: pet.age,
+      description: pet.description,
+      imageUrl: pet.imageUrl || 'https://via.placeholder.com/250',
+      adoptionStatus: 'Disponible',
+    });
     setIsDetailsOpen(true);
   };
 
@@ -261,12 +303,22 @@ const AdoptAPet = () => {
   };
 
   const handleEditPet = (pet: Pet) => {
-    setSelectedPet(pet);
-    setIsFormOpen(true); // Abrir formulario de edición
+    setSelectedPet({
+      id: pet.id,
+      name: pet.name,
+      species: pet.species,
+      gender: pet.gender,
+      age: pet.age,
+      description: pet.description || 'Descripción no disponible',
+      imageUrl: pet.imageUrl || 'https://via.placeholder.com/250',
+      adoptionStatus: 'Disponible',
+    });
+
+    setIsFormOpen(true);
   };
   const speciesIcons = {
-    'Perro': <PetsIcon />, // 🐶 Icono de perro
-    'Gato': <FavoriteIcon />, // 🐱 Icono de gato
+    Perro: <PetsIcon />,
+    Gato: <FavoriteIcon />,
   };
 
   return (
@@ -285,114 +337,44 @@ const AdoptAPet = () => {
         <Divider sx={{ width: '100%', margin: '10px 0' }} />
 
         <ListItem disablePadding>
-          <Button
+          <StyledButton
             fullWidth
-            variant='contained'
             startIcon={<UploadFileIcon />}
             onClick={handleOpenForm}
-            sx={{
-              backgroundColor: '#16a085 ',
-              color: 'white',
-              '&:hover': { backgroundColor: '#1f6696' },
-            }}
           >
             Agregar Mascota
-          </Button>
+          </StyledButton>
         </ListItem>
-
-        <Divider sx={{ width: '100%', margin: '10px 0' }} />
-
-        <StyledTitle>Edad</StyledTitle>
-
-        <Box
-          sx={{
-            display: 'flex',
-            gap: 2,
-            width: '100%',
-            backgroundColor: '#f1f1f1',
-            padding: 2,
-            borderRadius: '8px',
-            justifyContent: 'space-between',
-          }}
-        >
-          <StyledTextField
-            label='Desde'
-            variant='outlined'
-            size='small'
-            type='number'
-            onChange={(e) => setSearchAgeMin(e.target.value)}
-          />
-          <StyledTextField
-            label='Hasta'
-            variant='outlined'
-            size='small'
-            type='number'
-            onChange={(e) => setSearchAgeMax(e.target.value)}
-          />
-        </Box>
-
-        <Button
-          variant='contained'
-          onClick={handleSearch}
-          sx={{
-            width: '100%',
-            backgroundColor: '#16a085',
-            color: 'white',
-            borderRadius: '8px',
-            marginTop: '15px',
-            padding: '10px 0',
-            fontWeight: 'bold',
-            '&:hover': { backgroundColor: '#13856b' },
-          }}
-        >
-          Buscar
-        </Button>
       </StyledSidebar>
+
       <MainContent>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            padding: 2,
-            width: '100%',
-            position: 'relative',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              gap: 1,
-              padding: 1,
-              width: '100%',
-            }}
-          >
+        <Box sx={{ paddingTop: '60px' }}>
+          {' '}
+          <FiltersContainer>
             {['Perro', 'Gato'].map((species) => (
               <Button
                 key={species}
                 onClick={() => setSelectedSpecies(species)}
                 sx={{
-                  marginTop: 1,
-                  marginRight: 1,
-                  backgroundColor: 'white',
-                  color: '#16a085',
-                  border: '1px solid#16a085',
-                  '&:hover': {
-                    backgroundColor: '#13856b',
-                    color: 'white',
-                  },
-                  padding: '5px 10px',
+                  backgroundColor:
+                    selectedSpecies === species ? '#13856b' : 'white',
+                  color: selectedSpecies === species ? 'white' : '#16a085',
+                  border: '1px solid #16a085',
+                  '&:hover': { backgroundColor: '#13856b', color: 'white' },
                 }}
                 variant='contained'
-                startIcon={species === 'Gato' ? speciesIcons.Gato : speciesIcons.Perro} // Agregar el icono aquí
+                startIcon={
+                  species === 'Gato' ? speciesIcons.Gato : speciesIcons.Perro
+                }
               >
                 {species}
               </Button>
             ))}
-          </Box>
+          </FiltersContainer>
         </Box>
-        ;
+
         <PetRow>
-          {filteredPets.map((pet) => (
+          {paginatedPets.map((pet) => (
             <StyledCard key={pet.id}>
               <CardMedia
                 component='img'
@@ -438,51 +420,37 @@ const AdoptAPet = () => {
             </StyledCard>
           ))}
         </PetRow>
+
+        {/* Paginación con MUI */}
+        {totalPages > 1 && (
+          <PaginationContainer>
+            <Pagination
+              count={totalPages}
+              page={currentPage}
+              onChange={(_, value) => setCurrentPage(value)}
+              color='primary'
+            />
+          </PaginationContainer>
+        )}
       </MainContent>
       <AdoptionRequest
         open={isAdoptionFormOpen}
         onClose={handleCloseAdoptionForm}
         selectedPet={selectedPet}
-        onSubmit={handleAdoptionSubmit}
+        onSubmit={handleAdoptionSubmit} // ✅ Pasar la función de manejo de envío
       />
+
       {/* Modal para agregar mascota */}
       <Modal open={isFormOpen} onClose={handleCloseForm}>
         <ModalContent>
           <AddPetForm onClose={handleCloseForm} fetchPets={fetchPets} />
         </ModalContent>
       </Modal>
-      {/* Modal de Detalles */}
-      <Modal open={isDetailsOpen} onClose={() => setIsDetailsOpen(false)}>
-        <ModalContent>
-          {selectedPet && (
-            <>
-              <PetImage
-                src={selectedPet.imageUrl || 'https://via.placeholder.com/150'}
-                alt={selectedPet.name}
-              />
-              <Box>
-                <Typography variant='h5'>{selectedPet.name}</Typography>
-                <Typography variant='body1'>
-                  {selectedPet.species} - {selectedPet.gender}
-                </Typography>
-                <Typography variant='body2'>
-                  Edad: {selectedPet.age} años
-                </Typography>
-                <Typography variant='body2'>
-                  Descripción: {selectedPet.description}
-                </Typography>
-                <FilterButton
-                  variant='contained'
-                  fullWidth
-                  onClick={() => setIsDetailsOpen(false)}
-                >
-                  Cerrar
-                </FilterButton>
-              </Box>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
+      <PetDetailsModal
+        open={isDetailsOpen}
+        handleClose={() => setIsDetailsOpen(false)}
+        petDetails={selectedPet}
+      />
     </Container>
   );
 };
