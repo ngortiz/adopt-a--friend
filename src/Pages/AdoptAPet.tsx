@@ -19,12 +19,15 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import PetsIcon from '@mui/icons-material/Pets';
 import AdoptionRequest from '../Pages/AdoptionRequest';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
+import LoginIcon from  '@mui/icons-material/Login'
+import LogoutIcon from '@mui/icons-material/Logout'
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AddPetForm from '../components/AddPetForm';
 import logo from '../assets/logo.jpg';
 import { get } from 'aws-amplify/api';
 import awsExports from '../aws-exports';
 import PetDetailsModal from './PetDetailsModal';
+import { useAuthenticator } from '@aws-amplify/ui-react';
 
 // 🌟 Styled Components
 const Container = styled.div`
@@ -196,6 +199,7 @@ const AdoptAPet = () => {
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
   const [selectedPet, setSelectedPet] = useState<PetDetails | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const {user, signOut} = useAuthenticator(context => [context.user])
   const pageSize = 6;
 
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -335,16 +339,38 @@ const AdoptAPet = () => {
         </StyledFilterButton>
 
         <Divider sx={{ width: '100%', margin: '10px 0' }} />
-
-        <ListItem disablePadding>
-          <StyledButton
-            fullWidth
-            startIcon={<UploadFileIcon />}
-            onClick={handleOpenForm}
-          >
-            Agregar Mascota
-          </StyledButton>
-        </ListItem>
+          { user ? ( <>
+            <ListItem disablePadding>
+              <StyledButton
+                fullWidth
+                startIcon={<UploadFileIcon />}
+                onClick={handleOpenForm}
+                >
+                Agregar Mascota
+                </StyledButton>
+            </ListItem>
+            <ListItem>
+              <StyledButton
+                fullWidth
+                startIcon={<LogoutIcon />}
+                onClick={signOut}
+              >
+                Cerrar Session
+              </StyledButton>
+            </ListItem>
+          </>) : ( 
+            <ListItem>
+              <StyledButton
+                fullWidth
+                startIcon={<LoginIcon />}
+                onClick={() => window.location.href = '/auth'}
+              >
+                Inicia Session
+              </StyledButton>
+            </ListItem>
+          )}
+         
+      
       </StyledSidebar>
 
       <MainContent>
