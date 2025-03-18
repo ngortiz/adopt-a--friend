@@ -1,83 +1,105 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { uploadData } from '@aws-amplify/storage';
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import { TextField, Button, MenuItem, Typography } from '@mui/material';
 import { post } from 'aws-amplify/api';
+import { uploadData } from '@aws-amplify/storage';
 import { v4 as uuidv4 } from 'uuid';
 import awsExports from '../aws-exports';
-import styled from 'styled-components';
-import { Box, TextField } from '@mui/material';
 
-const FormTitle = styled.h2`
-  font-size: 2.2rem;
-  text-align: center;
-  color: #13856b;
-  margin-bottom: 2rem;
-  font-weight: 700;
-  font-family: 'Poppins', sans-serif;
+// 🎨 Styled Components Mejorados
+const PageContainer = styled.div`
+  justify-content: center;
+  align-items: center !important;
+  padding: 20px;
 `;
 
-const Form = styled.form`
-  width: 100%;
-  max-width: 800px;
-  background-color: #ffffff;
-  padding: 2.5rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  border-radius: 20px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  color: #13856b;
-`;
-
-const FormGroup = styled.div`
-  display: flex;
+const FormContainer = styled.div`
   flex-direction: column;
+  align-items: center;
+  padding: 30px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 84%;
+  margin-left: 8%;
 `;
 
-const Label = styled.label`
-  font-size: 1.1rem;
-  color: #13856b;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
+const Headers = styled(Typography)`
+  font-size: 2rem !important;
+  font-weight: bold;
+  background-color: white !important;
+  color: #e67e22 !important;
+  border-radius: 30px !important;
+  border: 1px solid #e67e22 !important;
+  margin-bottom: 20px !important;
+  text-align: center !important;
 `;
 
-const Input = styled.input`
-  padding: 0.9rem;
-  font-size: 1rem;
-  color: #37474f;
-  border: 1px solid #d1d1d1;
-  border-radius: 10px;
-  background-color: #f9f9f9;
-  &:focus {
-    border-color: #13856b;
-    background-color: #ffffff;
-    outline: none;
-  }
+const StyledTextField = styled(TextField)`
+  margin-bottom: 15px !important;
+  width: 100%;
+  color: #3498db !important;
 `;
 
 const ImagePreview = styled.img`
-  max-width: 100%;
-  height: auto;
-  margin-bottom: 1rem;
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
   border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+  border: 3px solid #dee2e6;
 `;
 
-const SubmitButton = styled.button`
-  grid-column: span 2;
-  padding: 1rem;
+const UploadLabel = styled.label`
+  padding: 12px 10px;
   width: 50%;
-  margin: 0 auto;
-  font-size: 1.1rem;
-  background-color: #13856b;
-  color: #ffffff;
-  border-radius: 30px;
+  margin-left: 34% !important;
+  padding-top: 2% !important;
+  left: 22%;
+  font-size: 12px;
+  background-color: white !important;
+  color: #e67e22 !important;
+  border-radius: 30px !important;
+  border: 1px solid #e67e22 !important;
   cursor: pointer;
   font-weight: bold;
   transition: all 0.3s ease;
   &:hover {
-    background-color: white;
-    color: #13856b !important;
-    border: 1px solid #13856b;
+    background-color: #333 !important;
+    color: #e67e22 !important;
+
+    border: 1px solid #e67e22;
+  }
+`;
+
+const HiddenFileInput = styled.input`
+  display: none; /* Oculta completamente el input */
+  &:focus {
+    outline: none;
+  }
+`;
+
+const StyledButton = styled(Button)`
+  grid-column: span 2;
+  padding: 1rem;
+  width: 50%;
+  margin: 0 auto;
+  font-size: 12px !important;
+  background-color: #e67e22 !important;
+  color: white !important;
+  border-radius: 30px !important;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  margin-bottom: 20px !important;
+  margin-top: 6% !important;
+  margin-left: 24% !important;
+  &:hover {
+    background-color: #333 !important;
+    color: #e67e22 !important;
+
+    border: 1px solid #e67e22;
   }
 `;
 const Notification = styled.div<{ show: boolean; type: 'success' | 'error' }>`
@@ -98,24 +120,27 @@ const Notification = styled.div<{ show: boolean; type: 'success' | 'error' }>`
   transform: translateY(${(props) => (props.show ? '0' : '-20px')});
   transition: opacity 0.5s ease, transform 0.5s ease;
 `;
-
-interface PetFormProps {
+interface AddPetFormProps {
   onClose: () => void;
   fetchPets: () => void;
 }
 
-const AddPetForm: React.FC<PetFormProps> = ({ onClose, fetchPets }) => {
-  const [formData, setFormData] = useState({
+const AddPetForm: React.FC<AddPetFormProps> = ({ onClose, fetchPets }) => {
+  const [newPet, setNewPet] = useState({
     name: '',
-    gender: '',
     species: '',
+    gender: '',
     age: '',
     description: '',
+    image: '',
   });
 
-  const [image, setImage] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewPet({ ...newPet, [e.target.name]: e.target.value });
+  };
   const [notification, setNotification] = useState<{
     show: boolean;
     message: string;
@@ -125,57 +150,55 @@ const AddPetForm: React.FC<PetFormProps> = ({ onClose, fetchPets }) => {
     message: '',
     type: 'success',
   });
-  const formRef = useRef<HTMLFormElement | null>(null);
 
-  useEffect(() => {
-    if (image) {
-      const objectUrl = URL.createObjectURL(image);
-      setPreviewUrl(objectUrl);
-      return () => URL.revokeObjectURL(objectUrl);
-    }
-  }, [image]);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setNewPet((prev) => ({ ...prev, image: base64String }));
+        setImagePreview(base64String);
+        setImageFile(file);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!image) {
-      alert('Por favor, selecciona una imagen.');
+  const handleSubmit = async () => {
+    if (
+      !newPet.name ||
+      !newPet.species ||
+      !newPet.gender ||
+      !newPet.age ||
+      !newPet.description ||
+      !newPet.image ||
+      !imageFile
+    ) {
+      alert('⚠️ Por favor, completa todos los campos.');
       return;
     }
 
-    const petId = uuidv4();
-    const fileExtension = image.name.split('.').pop()?.toLowerCase();
-
-    if (!fileExtension) {
-      alert('Formato de imagen no válido.');
-      return;
-    }
+    setLoading(true); // Activamos el estado de carga
 
     try {
-      setLoading(true);
-
+      const petId = uuidv4();
       const { path } = await uploadData({
-        path: `public/${petId}.${fileExtension}`,
-        data: image,
+        path: `public/${petId}.${imageFile.name
+          .split('.')
+          .pop()
+          ?.toLowerCase()}`,
+        data: imageFile,
       }).result;
-
-      const imageUrl = `https://${awsExports.aws_user_files_s3_bucket}.s3.${awsExports.aws_user_files_s3_bucket_region}.amazonaws.com/${path}`;
 
       const body = {
         id: petId,
-        ...formData,
-        imageUrl,
+        name: newPet.name,
+        gender: newPet.gender,
+        species: newPet.species,
+        age: newPet.age,
+        description: newPet.description,
+        imageUrl: `https://${awsExports.aws_user_files_s3_bucket}.s3.${awsExports.aws_user_files_s3_bucket_region}.amazonaws.com/${path}`,
       };
 
       await post({
@@ -203,87 +226,88 @@ const AddPetForm: React.FC<PetFormProps> = ({ onClose, fetchPets }) => {
         type: 'error',
       });
       setTimeout(
-        () => setNotification({ show: false, message: '', type: 'success' }),
+        () => setNotification({ show: false, message: '', type: 'error' }),
         3000
       );
     } finally {
-      setLoading(false);
+      setLoading(false); // Desactivamos el estado de carga al final
     }
   };
 
   return (
-    <Box>
-      <FormTitle>Registrar Mascota</FormTitle>
-      <Form ref={formRef} onSubmit={handleSubmit}>
-        <FormGroup>
-          <Label>Nombre:</Label>
-          <Input
-            type='text'
-            name='name'
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label>Género:</Label>
-          <Input
-            type='text'
-            name='gender'
-            value={formData.gender}
-            onChange={handleChange}
-            required
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label>Especie:</Label>
-          <Input
-            type='text'
-            name='species'
-            value={formData.species}
-            onChange={handleChange}
-            required
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label>Edad:</Label>
-          <Input
-            type='text'
-            name='age'
-            value={formData.age}
-            onChange={handleChange}
-            required
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label>Descripción:</Label>
-          <TextField
-            name='description'
-            multiline
-            rows={3}
-            value={formData.description}
-            onChange={handleChange}
-            fullWidth
-          />
-        </FormGroup>
-        <FormGroup>
-          <Label>Imagen:</Label>
-          {previewUrl && <ImagePreview src={previewUrl} alt='Vista previa' />}
-          <Input
+    <PageContainer>
+      <Headers>🐾 Agregar Nueva Mascota </Headers>
+      <FormContainer>
+        <StyledTextField
+          label='Nombre'
+          name='name'
+          value={newPet.name}
+          onChange={handleChange}
+          required
+        />
+
+        <StyledTextField
+          select
+          label='Especie'
+          name='species'
+          value={newPet.species}
+          onChange={handleChange}
+          required
+        >
+          <MenuItem value='Perro'>🐶 Perro</MenuItem>
+          <MenuItem value='Gato'>🐱 Gato</MenuItem>
+        </StyledTextField>
+
+        <StyledTextField
+          select
+          label='Género'
+          name='gender'
+          value={newPet.gender}
+          onChange={handleChange}
+          required
+        >
+          <MenuItem value='Macho'>♂️ Macho</MenuItem>
+          <MenuItem value='Hembra'>♀️ Hembra</MenuItem>
+        </StyledTextField>
+
+        <StyledTextField
+          label='Edad'
+          name='age'
+          type='text'
+          value={newPet.age}
+          onChange={handleChange}
+          required
+        />
+
+        <StyledTextField
+          label='Descripción'
+          name='description'
+          value={newPet.description}
+          onChange={handleChange}
+          multiline
+          rows={3}
+          required
+        />
+
+        {imagePreview && <ImagePreview src={imagePreview} alt='Vista previa' />}
+
+        <UploadLabel>
+          📷 Subir Imagen
+          <HiddenFileInput
             type='file'
             accept='image/*'
-            onChange={handleImageChange}
-            required
+            onChange={handleImageUpload}
           />
-        </FormGroup>
-        <SubmitButton type='submit' disabled={loading}>
+        </UploadLabel>
+
+        <StyledButton onClick={handleSubmit} disabled={loading}>
           {loading ? 'Registrando...' : 'Registrar Mascota'}
-        </SubmitButton>
-      </Form>
+        </StyledButton>
+      </FormContainer>
       <Notification show={notification.show} type={notification.type}>
         {notification.message}
       </Notification>
-    </Box>
+    </PageContainer>
   );
 };
 

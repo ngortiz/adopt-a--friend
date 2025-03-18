@@ -84,15 +84,15 @@ const StyledDialogTitle = styled(DialogTitle)`
   justify-content: space-between;
   font-weight: bold;
   font-size: 1.6rem;
-  color: #16a085;
+  color: #e67e22;
   text-align: center;
   padding-bottom: 10px;
-  border-bottom: 2px solid #16a085;
+  border-bottom: 2px solid#e67e22;
 `;
 
 const StyledLabel = styled.span`
   font-weight: bold;
-  color: #16a085;
+  color: #e67e22;
   font-size: 1rem;
   flex: 1;
   margin-right: 10px;
@@ -114,7 +114,7 @@ const PetDetailsModal: React.FC<PetDetailsModalProps> = ({
     {petDetails && (
       <>
         <StyledDialogTitle>
-          DETALLE DE LA MASCOTA
+          Detalle del Mascota
           <IconButton onClick={handleClose} aria-label='close'>
             <CloseIcon />
           </IconButton>

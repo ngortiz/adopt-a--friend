@@ -14,6 +14,9 @@ import {
   MenuItem,
   IconButton,
   Pagination,
+  CircularProgress,
+  Alert,
+  Snackbar,
 } from '@mui/material';
 import AdoptionRequest from '../Pages/AdoptionRequest';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
@@ -35,6 +38,16 @@ const Container = styled.div`
   background-color: #e0e5ec;
   overflow: hidden;
 `;
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center !important;
+  align-items: center !mportant;
+  height: 100vh;
+  width: 60vw;
+  background-color: #e0e5ec;
+  margin-left: 10%;
+`;
+
 const StyledSidebar = styled('aside')`
   width: 280px;
   background-color: white;
@@ -43,10 +56,16 @@ const StyledSidebar = styled('aside')`
   flex-direction: column;
   align-items: center;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  height: 100vh;
-  overflow-y: auto;
+  height: 1000vh;
   margin-top: 4%;
-  border-right: 3px solid#e67e22;
+  border-right: 3px solid #e67e22;
+  max-height: 100vh;
+  overflow-y: auto;
+  padding-right: 10px;
+  padding-bottom: 80px;
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
 
   @media (max-width: 1024px) {
     width: 240px;
@@ -128,7 +147,7 @@ const ModalContent = styled(Box)`
   left: 50%;
   transform: translate(-50%, -50%);
   width: 40%;
-  background: white;
+  background: #e67e22;
   border-radius: 10px;
   padding: 20px;
   text-align: left;
@@ -193,11 +212,19 @@ const PaginationContainer = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 20px;
+  background-color: #ecf0f1;
+  color: #e67e22 !important;
 `;
 const Title = styled.div`
-  color: #333 !important;
-  text-align: center;
-  font-size: 2.5rem;
+  background-color: white !important;
+  color: #e67e22 !important;
+  border-radius: 30px !important;
+  border: 1px solid #e67e22 !important;
+  margin-bottom: 20px !important;
+  text-align: center !important;
+  font-size: 2rem;
+  width: 50%;
+  margin-left: 24%;
   font-weight: bold;
   margin-bottom: 1%;
   margin-top: 2%;
@@ -238,20 +265,23 @@ const AdoptAPet = () => {
   }>({});
   const [isAdoptionFormOpen, setIsAdoptionFormOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [notification, setNotification] = useState(false);
 
   const fetchPets = async () => {
+    setLoading(true);
     try {
       const getOperation = get({
         apiName: awsExports.aws_cloud_logic_custom[0].name,
         path: '/pets',
       });
-
       const response = await getOperation.response;
       const data: unknown = await response.body.json();
-
       setPets(data as Pet[]);
     } catch (e) {
       console.log(e);
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -350,11 +380,14 @@ const AdoptAPet = () => {
 
     setIsFormOpen(true);
   };
+  const handlePetAdded = () => {
+    fetchPets();
+    setNotification(true);
+  };
 
   return (
     <>
       <Navbar />
-
       <Container>
         <StyledSidebar>
           <Logo src={logo2} alt='Adopta Un Amigo' />
@@ -389,73 +422,79 @@ const AdoptAPet = () => {
             </ListItem>
           )}
         </StyledSidebar>
-
         <MainContent>
-          <div>
-            <Title>Adopta Un Amigo</Title>
-          </div>
-          <PetRow>
-            {paginatedPets.map((pet) => (
-              <StyledCard key={pet.id}>
-                <CardMedia
-                  component='img'
-                  height='180'
-                  image={pet.imageUrl || 'https://via.placeholder.com/150'}
-                  alt={pet.name}
-                  onClick={() => handleDetailsClick(pet)}
-                />
-                <CardContent>
-                  <Typography variant='h6'>{pet.name}</Typography>
-                  <Typography variant='body2' color='text.secondary'>
-                    {pet.species} - {pet.gender}
-                  </Typography>
+          {loading ? (
+            <LoadingContainer>
+              <CircularProgress color='primary' />
+            </LoadingContainer>
+          ) : (
+            <>
+              <div>
+                <Title>Adopta Un Amigo</Title>
+              </div>
+              <PetRow>
+                {paginatedPets.map((pet) => (
+                  <StyledCard key={pet.id}>
+                    <CardMedia
+                      component='img'
+                      height='180'
+                      image={pet.imageUrl || 'https://via.placeholder.com/150'}
+                      alt={pet.name}
+                      onClick={() => handleDetailsClick(pet)}
+                    />
+                    <CardContent>
+                      <Typography variant='h6'>{pet.name}</Typography>
+                      <Typography variant='body2' color='text.secondary'>
+                        {pet.species} - {pet.gender}
+                      </Typography>
 
-                  <IconButton
-                    sx={{ position: 'absolute', top: 5, right: 5 }}
-                    onClick={(event) => handleOpenMenu(event, pet.id)}
-                  >
-                    <MoreVertIcon />
-                  </IconButton>
+                      <IconButton
+                        sx={{ position: 'absolute', top: 5, right: 5 }}
+                        onClick={(event) => handleOpenMenu(event, pet.id)}
+                      >
+                        <MoreVertIcon />
+                      </IconButton>
 
-                  <Menu
-                    anchorEl={menuAnchor[pet.id]}
-                    open={Boolean(menuAnchor[pet.id])}
-                    onClose={() => handleCloseMenu(pet.id)}
-                  >
-                    <MenuItem onClick={() => handleEditPet(pet)}>
-                      Editar
-                    </MenuItem>
-                    <MenuItem onClick={() => handleDeletePet(pet.id)}>
-                      Eliminar
-                    </MenuItem>
-                  </Menu>
+                      <Menu
+                        anchorEl={menuAnchor[pet.id]}
+                        open={Boolean(menuAnchor[pet.id])}
+                        onClose={() => handleCloseMenu(pet.id)}
+                      >
+                        <MenuItem onClick={() => handleEditPet(pet)}>
+                          Editar
+                        </MenuItem>
+                        <MenuItem onClick={() => handleDeletePet(pet.id)}>
+                          Eliminar
+                        </MenuItem>
+                      </Menu>
 
-                  <AdoptButton
-                    variant='contained'
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAdoptClick(pet);
-                    }}
-                  >
-                    Adoptar
-                  </AdoptButton>
-                </CardContent>
-              </StyledCard>
-            ))}
-          </PetRow>
+                      <AdoptButton
+                        variant='contained'
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAdoptClick(pet);
+                        }}
+                      >
+                        Adoptar
+                      </AdoptButton>
+                    </CardContent>
+                  </StyledCard>
+                ))}
+              </PetRow>
 
-          {/* Paginación con MUI */}
-          {totalPages > 1 && (
-            <PaginationContainer>
-              <Pagination
-                count={totalPages}
-                page={currentPage}
-                onChange={(_, value) => setCurrentPage(value)}
-                color='primary'
-              />
-            </PaginationContainer>
+              {totalPages > 1 && (
+                <PaginationContainer>
+                  <Pagination
+                    count={totalPages}
+                    page={currentPage}
+                    onChange={(_, value) => setCurrentPage(value)}
+                  />
+                </PaginationContainer>
+              )}
+            </>
           )}
         </MainContent>
+
         <AdoptionRequest
           open={isAdoptionFormOpen}
           onClose={handleCloseAdoptionForm}
@@ -466,7 +505,7 @@ const AdoptAPet = () => {
         {/* Modal para agregar mascota */}
         <Modal open={isFormOpen} onClose={handleCloseForm}>
           <ModalContent>
-            <AddPetForm onClose={handleCloseForm} fetchPets={fetchPets} />
+            <AddPetForm onClose={handleCloseForm} fetchPets={handlePetAdded} />
           </ModalContent>
         </Modal>
         <PetDetailsModal
@@ -474,6 +513,15 @@ const AdoptAPet = () => {
           handleClose={() => setIsDetailsOpen(false)}
           petDetails={selectedPet}
         />
+        <Snackbar
+          open={notification}
+          autoHideDuration={3000}
+          onClose={() => setNotification(false)}
+        >
+          <Alert onClose={() => setNotification(false)} severity='success'>
+            Mascota agregada con éxito!
+          </Alert>
+        </Snackbar>
       </Container>
     </>
   );
