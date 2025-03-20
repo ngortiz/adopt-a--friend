@@ -4,7 +4,16 @@ El sitio web Adopta un Amigo es una plataforma diseñada para facilitar la adopc
 
  # Tecnologías: 
  
- React, TypeScript, Material-UI, Styled Components,
+ React, TypeScript, Material-UI, Styled Components.
+ 
+# Sitio de prueba
+
+Url: https://dev.d2r9hrbg0r3u8q.amplifyapp.com
+
+Usuario: ngortiz
+
+Password: floppy24
+
 
  # Funcionalidades principales:
 
