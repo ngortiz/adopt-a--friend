@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Modal, Box, Typography, TextField, Button } from '@mui/material';
 import styled from 'styled-components';
-
+import { IconButton } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 interface AdoptionRequestProps {
   open: boolean;
   onClose: () => void;
@@ -91,6 +92,14 @@ const StyledSubmitButton = styled(Button)`
     padding: 0.8rem;
   }
 `;
+const CloseButton = styled(IconButton)`
+  color: #e67e22 !important;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: #333 !important;
+  }
+`;
 
 const AdoptionRequest: React.FC<AdoptionRequestProps> = ({
   open,
@@ -136,6 +145,9 @@ const AdoptionRequest: React.FC<AdoptionRequestProps> = ({
       <StyledModalContent>
         {selectedPet && (
           <>
+            <CloseButton onClick={onClose}>
+              <CloseIcon />
+            </CloseButton>
             <FormTitle variant='h5'>📝 Solicitud de Adopción</FormTitle>
             <PetName variant='h6'>🐶 Adoptando a: {selectedPet.name}</PetName>
             <form onSubmit={handleSubmit}>

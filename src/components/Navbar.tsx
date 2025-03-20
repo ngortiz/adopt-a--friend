@@ -5,6 +5,9 @@ import { Button } from '@mui/material';
 import styled from 'styled-components';
 
 const NavbarContainer = styled.nav`
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
   background-color: #e67e22;
   color: white;
@@ -16,6 +19,13 @@ const NavbarContainer = styled.nav`
   top: 0;
   left: 0;
   z-index: 1000;
+  @media (max-width: 768px) {
+    position: static;
+    width: 100%;
+    display: flex;
+    justify-content: left;
+    margin-bottom: 10px;
+  }
 `;
 
 const AuthButton = styled(Button)`

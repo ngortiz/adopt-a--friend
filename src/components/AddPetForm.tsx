@@ -5,6 +5,8 @@ import { post } from 'aws-amplify/api';
 import { uploadData } from '@aws-amplify/storage';
 import { v4 as uuidv4 } from 'uuid';
 import awsExports from '../aws-exports';
+import CloseIcon from '@mui/icons-material/Close';
+import { IconButton } from '@mui/material';
 
 // Styled Components Mejorados
 const PageContainer = styled.div`
@@ -12,6 +14,14 @@ const PageContainer = styled.div`
   align-items: center !important;
   padding: 20px;
   width: 100%;
+`;
+const CloseButton = styled(IconButton)`
+  color: #e67e22 !important;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: #333 !important;
+  }
 `;
 
 const FormContainer = styled.div`
@@ -38,8 +48,8 @@ const Headers = styled(Typography)`
   font-weight: bold;
   background-color: white !important;
   color: #e67e22 !important;
-  border-radius: 30px !important;
-  border: 1px solid #e67e22 !important;
+  margin: 43%;
+
   margin-bottom: 20px !important;
   text-align: center !important;
 `;
@@ -120,6 +130,13 @@ const StyledButton = styled(Button)`
     font-size: 12px;
     max-width: 200px;
   }
+`;
+const HeaderContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 20px;
 `;
 
 interface AddPetFormProps {
@@ -212,7 +229,13 @@ const AddPetForm: React.FC<AddPetFormProps> = ({ onClose, fetchPets }) => {
 
   return (
     <PageContainer>
-      <Headers>🐾 Agregar Nueva Mascota </Headers>
+      <HeaderContainer>
+        <Headers>🐾 Agregar Nueva Mascota</Headers>
+        <CloseButton onClick={onClose}>
+          <CloseIcon />
+        </CloseButton>
+      </HeaderContainer>
+
       <FormContainer>
         <StyledTextField
           label='Nombre'

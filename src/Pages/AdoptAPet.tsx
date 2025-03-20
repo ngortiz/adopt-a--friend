@@ -37,9 +37,12 @@ const Container = styled.div`
   height: 100vh;
   width: 100vw;
   background-color: #e0e5ec;
-  overflow: auto;
+  overflow: hidden;
+
   @media (max-width: 768px) {
-    flex-direction: column; /* 
+    flex-direction: column;
+    height: auto;
+    overflow: auto;
   }
 `;
 const LoadingContainer = styled.div`
@@ -60,25 +63,17 @@ const StyledSidebar = styled('aside')`
   flex-direction: column;
   align-items: center;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  height: 1000vh;
+  height: 100vh;
   margin-top: 4%;
   border-right: 3px solid #e67e22;
   overflow-y: auto;
-  padding-right: 10px;
-  padding-bottom: 80px;
-  &::-webkit-scrollbar {
-    width: 8px;
-  }
+  position: relative;
 
   @media (max-width: 768px) {
     width: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    z-index: 1000;
-    background: white;
-    overflow-y: auto;
+    height: auto;
+    position: static;
+    border-right: none;
   }
 `;
 
@@ -128,7 +123,7 @@ const StyledButton = styled(Button)`
   }
 
   @media (max-width: 600px) {
-    width: 100%; /* ✅ Ocupa todo el ancho en móvil */
+    width: 100%; /* 
     font-size: 0.9rem;
     padding: 8px;
   }
@@ -176,16 +171,8 @@ const ModalContent = styled(Box)`
 const PetRow = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 25px;
-  padding: 20px;
-
-  @media (max-width: 1200px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  @media (max-width: 900px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  gap: 15px;
+  padding: 10px;
 
   @media (max-width: 600px) {
     grid-template-columns: repeat(1, 1fr);
@@ -193,10 +180,10 @@ const PetRow = styled.div`
 `;
 
 const StyledCard = styled(Card)`
-  position: relative;
+  max-width: 100%;
   width: 100%;
-  max-width: 300px;
   cursor: pointer;
+  border: 1px solid #e67e22;
   transition: transform 0.3s, box-shadow 0.3s;
   border-radius: 12px;
   background-color: #ecf0f1;
@@ -212,13 +199,12 @@ const StyledCard = styled(Card)`
 
 const MainContent = styled.div`
   flex: 1;
-  padding: 30px;
+  padding: 20px;
   max-width: 1400px;
   margin: auto;
-  margin-top: 80px;
-
-  max-height: auto;
-  overflow: visible;
+  margin-top: 25px;
+  height: 100vh;
+  overflow: auto;
   &::-webkit-scrollbar {
     width: 8px;
   }
