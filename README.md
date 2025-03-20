@@ -1,54 +1,31 @@
-# React + TypeScript + Vite
+# Proyecto:  Adopt-a-friend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+El sitio web Adopta un Amigo es una plataforma diseñada para facilitar la adopción de mascotas. Su objetivo principal es conectar animales en busca de un hogar con personas interesadas en adoptar
 
-Currently, two official plugins are available:
+ # Tecnologías: 
+ 
+ React, TypeScript, Material-UI, Styled Components,
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+ # Funcionalidades principales:
 
-## Expanding the ESLint configuration
+1-  Lista de mascotas disponibles
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+  Se muestra una galería de mascotas con imágenes y detalles, cada mascota tiene un botón para adoptar y ver más información.
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+<img width="1429" alt="Screenshot 2025-03-20 at 16 00 12" src="https://github.com/user-attachments/assets/e840ac1b-1fb0-4e92-a425-4ead1e69bd5b" />
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+2- Formulario de registro de mascotas
+
+Permite agregar nuevas mascotas al sistema. Incluye campos como nombre, genero, especies edad, imagen y descripción.
+
+<img width="1440" alt="Screenshot 2025-03-20 at 16 00 49" src="https://github.com/user-attachments/assets/dfc2eb46-1149-4507-8a34-438c641d47ba" />
+
+
+
+3- Formulario de solicitud de adopción
+
+Los usuarios pueden completar un formulario para adoptar una mascota.
+Una vez completado, la solicitud se envía directamente a WhatsApp de la persona encargada de gestionar la adopción.
+<img width="1436" alt="Screenshot 2025-03-20 at 16 01 33" src="https://github.com/user-attachments/assets/1862eb33-d9b7-4e88-be02-3554e4802b57" />
