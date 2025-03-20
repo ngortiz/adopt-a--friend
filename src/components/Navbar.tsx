@@ -32,6 +32,12 @@ const AuthButton = styled(Button)`
     background-color: #333 !important;
     color: #e67e22 !important;
   }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+  }
 `;
 
 const Navbar: React.FC = () => {

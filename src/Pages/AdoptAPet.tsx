@@ -30,9 +30,10 @@ import PetDetailsModal from './PetDetailsModal';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import Navbar from '../components/Navbar';
 
-// 🌟 Styled Components
+// Styled Components
 const Container = styled.div`
   display: flex;
+  flex-wrap: wrap;
   height: 100vh;
   width: 100vw;
   background-color: #e0e5ec;
@@ -49,7 +50,7 @@ const LoadingContainer = styled.div`
 `;
 
 const StyledSidebar = styled('aside')`
-  width: 280px;
+  width: 300px;
   background-color: white;
   padding: 20px;
   display: flex;
@@ -67,8 +68,15 @@ const StyledSidebar = styled('aside')`
     width: 8px;
   }
 
-  @media (max-width: 1024px) {
-    width: 240px;
+  @media (max-width: 768px) {
+    width: 100%; /*
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 1000;
+    display: none; 
+  }
   }
 `;
 
@@ -146,8 +154,9 @@ const ModalContent = styled(Box)`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 40%;
-  background: #e67e22;
+  width: 90%; /* ✅ Más flexible */
+  max-width: 600px; /* ✅ Se mantiene controlado */
+  background: white;
   border-radius: 10px;
   padding: 20px;
   text-align: left;
@@ -155,13 +164,12 @@ const ModalContent = styled(Box)`
   display: flex;
   align-items: center;
   gap: 20px;
-  max-width: 900px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 `;
 
 const PetRow = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 25px;
   padding: 20px;
 
@@ -198,7 +206,7 @@ const MainContent = styled.div`
   padding: 30px;
   max-width: 1400px;
   margin: auto;
-  margin-top: 4%;
+  margin-top: 80px;
 
   max-height: 100vh;
   overflow-y: auto;
@@ -206,6 +214,9 @@ const MainContent = styled.div`
   padding-bottom: 80px;
   &::-webkit-scrollbar {
     width: 8px;
+  }
+  @media (max-width: 768px) {
+    margin-top: 100px;
   }
 `;
 const PaginationContainer = styled.div`
@@ -294,14 +305,12 @@ const AdoptAPet = () => {
       (!selectedGender || pet.gender === selectedGender)
   );
 
-  // Paginación de los resultados filtrados
   const totalPages = Math.ceil(filteredPets.length / pageSize);
   const paginatedPets = filteredPets.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
 
-  // Resetear la página a 1 cuando se aplica un filtro
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedSpecies, selectedGender]);
@@ -499,7 +508,7 @@ const AdoptAPet = () => {
           open={isAdoptionFormOpen}
           onClose={handleCloseAdoptionForm}
           selectedPet={selectedPet}
-          onSubmit={handleAdoptionSubmit} // ✅ Pasar la función de manejo de envío
+          onSubmit={handleAdoptionSubmit}
         />
 
         {/* Modal para agregar mascota */}
@@ -517,6 +526,7 @@ const AdoptAPet = () => {
           open={notification}
           autoHideDuration={3000}
           onClose={() => setNotification(false)}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         >
           <Alert onClose={() => setNotification(false)} severity='success'>
             Mascota agregada con éxito!
