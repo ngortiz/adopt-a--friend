@@ -6,7 +6,7 @@ import { uploadData } from '@aws-amplify/storage';
 import { v4 as uuidv4 } from 'uuid';
 import awsExports from '../aws-exports';
 
-// 🎨 Styled Components Mejorados
+// Styled Components Mejorados
 const PageContainer = styled.div`
   justify-content: center;
   align-items: center !important;
@@ -93,7 +93,7 @@ const UploadLabel = styled.label`
 `;
 
 const HiddenFileInput = styled.input`
-  display: none; /* Oculta completamente el input */
+  display: none;
   &:focus {
     outline: none;
   }
