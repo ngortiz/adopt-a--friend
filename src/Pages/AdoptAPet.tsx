@@ -33,18 +33,21 @@ import Navbar from '../components/Navbar';
 // Styled Components
 const Container = styled.div`
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: row
   height: 100vh;
   width: 100vw;
   background-color: #e0e5ec;
-  overflow: hidden;
+  overflow: auto;
+  @media (max-width: 768px) {
+    flex-direction: column; /* 
+  }
 `;
 const LoadingContainer = styled.div`
   display: flex;
   justify-content: center !important;
   align-items: center !mportant;
-  height: 100vh;
-  width: 60vw;
+  height: auto;
+
   background-color: #e0e5ec;
   margin-left: 10%;
 `;
@@ -60,7 +63,6 @@ const StyledSidebar = styled('aside')`
   height: 1000vh;
   margin-top: 4%;
   border-right: 3px solid #e67e22;
-  max-height: 100vh;
   overflow-y: auto;
   padding-right: 10px;
   padding-bottom: 80px;
@@ -69,14 +71,14 @@ const StyledSidebar = styled('aside')`
   }
 
   @media (max-width: 768px) {
-    width: 100%; /*
+    width: 100%;
     position: fixed;
     top: 0;
     left: 0;
     height: 100%;
     z-index: 1000;
-    display: none; 
-  }
+    background: white;
+    overflow-y: auto;
   }
 `;
 
@@ -108,23 +110,27 @@ const StyledFilterButton = styled(Button)`
     color: #e67e22 !important;
   }
 `;
+
 const StyledButton = styled(Button)`
-  grid-column: span 2;
-  padding: 1rem;
   width: 50%;
-  margin: 0 auto;
-  font-size: 1.1rem;
+  padding: 10px;
+  font-size: 1rem;
   background-color: #e67e22 !important;
   color: white !important;
   border-radius: 30px !important;
-  cursor: pointer;
   font-weight: bold;
   transition: all 0.3s ease;
+
   &:hover {
     background-color: #333 !important;
     color: #e67e22 !important;
-
     border: 1px solid #e67e22;
+  }
+
+  @media (max-width: 600px) {
+    width: 100%; /* ✅ Ocupa todo el ancho en móvil */
+    font-size: 0.9rem;
+    padding: 8px;
   }
 `;
 
@@ -154,8 +160,8 @@ const ModalContent = styled(Box)`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 90%; /* ✅ Más flexible */
-  max-width: 600px; /* ✅ Se mantiene controlado */
+  width: 90%;
+  max-width: 600px;
   background: white;
   border-radius: 10px;
   padding: 20px;
@@ -199,6 +205,9 @@ const StyledCard = styled(Card)`
     transform: scale(1.05);
     box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
   }
+  @media (max-width: 600px) {
+    max-width: 100%;
+  }
 `;
 
 const MainContent = styled.div`
@@ -208,15 +217,14 @@ const MainContent = styled.div`
   margin: auto;
   margin-top: 80px;
 
-  max-height: 100vh;
-  overflow-y: auto;
-  padding-right: 10px;
-  padding-bottom: 80px;
+  max-height: auto;
+  overflow: visible;
   &::-webkit-scrollbar {
     width: 8px;
   }
   @media (max-width: 768px) {
     margin-top: 100px;
+    padding: 10px;
   }
 `;
 const PaginationContainer = styled.div`
@@ -416,8 +424,6 @@ const AdoptAPet = () => {
           <StyledFilterButton onClick={() => setSelectedSpecies('Gato')}>
             🐱 Gato
           </StyledFilterButton>
-          <Divider sx={{ width: '100%', margin: '10px 0' }} />
-
           <Divider sx={{ width: '100%', margin: '10px 0' }} />
           {user && (
             <ListItem disablePadding>

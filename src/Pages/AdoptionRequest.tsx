@@ -6,7 +6,7 @@ interface AdoptionRequestProps {
   open: boolean;
   onClose: () => void;
   selectedPet: { name: string; imageUrl?: string } | null;
-  onSubmit?: (event: React.FormEvent) => void; // ✅ Agregamos esta línea
+  onSubmit?: (event: React.FormEvent) => void;
 }
 
 const StyledModalContent = styled(Box)`
