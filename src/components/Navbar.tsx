@@ -1,8 +1,9 @@
-import { useAuthenticator } from '@aws-amplify/ui-react';
+import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LoginIcon from '@mui/icons-material/Login';
 import { Button } from '@mui/material';
 import styled from 'styled-components';
+import { useState} from 'react';
 
 const NavbarContainer = styled.nav`
   position: fixed;
@@ -52,22 +53,36 @@ const AuthButton = styled(Button)`
 
 const Navbar: React.FC = () => {
   const { user, signOut } = useAuthenticator((context) => [context.user]);
+  const [showLoginModal, setShowAuthModal] = useState(false)
+
+  const handleSignOut = () => {
+    signOut();
+    setShowAuthModal(false);
+  }
 
   return (
+    <>
     <NavbarContainer>
       {user ? (
-        <AuthButton startIcon={<LogoutIcon />} onClick={signOut}>
+        <AuthButton startIcon={<LogoutIcon />} onClick={handleSignOut}>
           Cerrar Sesión
         </AuthButton>
       ) : (
         <AuthButton
           startIcon={<LoginIcon />}
-          onClick={() => (window.location.href = '/auth')}
+          onClick={() => setShowAuthModal(true)}
         >
           Iniciar Sesión
         </AuthButton>
+        
       )}
     </NavbarContainer>
+    { showLoginModal && <div>
+      <Button onClick={() => setShowAuthModal(false)}>Cerrar</Button>
+      <Authenticator variation='modal' hideSignUp/>
+      </div> 
+      }
+    </>
   );
 };
 
