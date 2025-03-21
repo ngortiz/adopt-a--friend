@@ -42,7 +42,11 @@ const Container = styled.div`
   @media (max-width: 768px) {
     flex-direction: column;
     height: auto;
-    overflow: auto;
+    overflow: none;
+    padding-top: 60px
+    &::-webkit-scrollbar {
+      width: none;
+    }
   }
 `;
 const LoadingContainer = styled.div`
@@ -74,6 +78,8 @@ const StyledSidebar = styled('aside')`
     height: auto;
     position: static;
     border-right: none;
+
+    padding-top: 25%;
   }
 `;
 
@@ -83,7 +89,8 @@ const Logo = styled('img')`
   border-radius: 50%;
 
   @media (min-width: 768px) {
-    width: 100px;
+    width: 80%;
+    margin-top: 20%;
   }
 `;
 
@@ -123,7 +130,7 @@ const StyledButton = styled(Button)`
   }
 
   @media (max-width: 600px) {
-    width: 100%; /* 
+    width: 84%;
     font-size: 0.9rem;
     padding: 8px;
   }
@@ -231,8 +238,15 @@ const Title = styled.div`
   width: 50%;
   margin-left: 24%;
   font-weight: bold;
-  margin-bottom: 1%;
-  margin-top: 2%;
+  margin-top: 5%;
+
+  @media (max-width: 768px) {
+    padding-top: 10%;
+    padding: 10px;
+    font-size: 16px;
+    width: 84%;
+    margin-left: 28px;
+  }
 `;
 
 interface Pet {

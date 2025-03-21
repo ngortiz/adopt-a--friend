@@ -113,12 +113,10 @@ const PetDetailsModal: React.FC<PetDetailsModalProps> = ({
   <StyledDialog open={open} onClose={handleClose} maxWidth='md' fullWidth>
     {petDetails && (
       <>
-        <StyledDialogTitle>
-          Detalle del Mascota
-          <IconButton onClick={handleClose} aria-label='close'>
-            <CloseIcon />
-          </IconButton>
-        </StyledDialogTitle>
+        <IconButton onClick={handleClose} aria-label='close'>
+          <CloseIcon />
+        </IconButton>
+        <StyledDialogTitle>Detalle del Mascota</StyledDialogTitle>
         <StyledDialogContent>
           <CardContainer>
             <StyledImage
