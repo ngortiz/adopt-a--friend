@@ -18,8 +18,7 @@ const PageContainer = styled.div`
 const CloseButton = styled(IconButton)`
   color: #e67e22 !important;
   transition: color 0.3s ease;
-
-  &:hover {
+  ma &:hover {
     color: #333 !important;
   }
 `;
@@ -49,7 +48,7 @@ const Headers = styled(Typography)`
   background-color: white !important;
   color: #e67e22 !important;
   margin: 43%;
-
+  margin-bottom
   margin-bottom: 20px !important;
   text-align: center !important;
 `;
@@ -130,13 +129,6 @@ const StyledButton = styled(Button)`
     font-size: 12px;
     max-width: 200px;
   }
-`;
-const HeaderContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  margin-bottom: 20px;
 `;
 
 interface AddPetFormProps {
@@ -229,12 +221,11 @@ const AddPetForm: React.FC<AddPetFormProps> = ({ onClose, fetchPets }) => {
 
   return (
     <PageContainer>
-      <HeaderContainer>
-        <Headers>🐾 Agregar Nueva Mascota</Headers>
-        <CloseButton onClick={onClose}>
-          <CloseIcon />
-        </CloseButton>
-      </HeaderContainer>
+      <CloseButton onClick={onClose}>
+        <CloseIcon />
+      </CloseButton>
+
+      <Headers>🐾 Agregar Nueva Mascota</Headers>
 
       <FormContainer>
         <StyledTextField
