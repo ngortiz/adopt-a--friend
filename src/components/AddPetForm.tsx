@@ -225,7 +225,7 @@ const AddPetForm: React.FC<AddPetFormProps> = ({ onClose, fetchPets }) => {
         <CloseIcon />
       </CloseButton>
 
-      <Headers>🐾 Agregar Nueva Mascota</Headers>
+      <Headers>Agregar Nueva Mascota</Headers>
 
       <FormContainer>
         <StyledTextField

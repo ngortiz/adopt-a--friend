@@ -228,10 +228,9 @@ const PaginationContainer = styled.div`
   color: #e67e22 !important;
 `;
 const Title = styled.div`
-  background-color: white !important;
-  color: #e67e22 !important;
+  color: #555 !important;
   border-radius: 30px !important;
-  border: 1px solid #e67e22 !important;
+
   margin-bottom: 20px !important;
   text-align: center !important;
   font-size: 2rem;
