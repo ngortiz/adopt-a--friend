@@ -105,6 +105,20 @@ const StyledSpan = styled.span`
   flex: 2;
 `;
 
+const CloseButton = styled(IconButton)`
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  border-bottom: 2px solid none;
+  border: none !important;
+  background: none !important;
+  z-index: 1;
+
+  &:hover {
+    color: #e67e22;
+  }
+`;
+
 const PetDetailsModal: React.FC<PetDetailsModalProps> = ({
   open,
   handleClose,
@@ -113,9 +127,10 @@ const PetDetailsModal: React.FC<PetDetailsModalProps> = ({
   <StyledDialog open={open} onClose={handleClose} maxWidth='md' fullWidth>
     {petDetails && (
       <>
-        <IconButton onClick={handleClose} aria-label='close'>
+        <CloseButton onClick={handleClose} aria-label='close'>
           <CloseIcon />
-        </IconButton>
+        </CloseButton>
+
         <StyledDialogTitle>Detalle del Mascota</StyledDialogTitle>
         <StyledDialogContent>
           <CardContainer>

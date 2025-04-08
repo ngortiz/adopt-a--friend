@@ -13,7 +13,7 @@ describe('AddPetForm', () => {
     // Verifica encabezado
     expect(screen.getByText('Agregar Nueva Mascota')).toBeInTheDocument();
 
-    // Verifica inputs
+    // Verificamos os inputs
     expect(screen.getByText('Agregar Nueva Mascota')).toBeInTheDocument();
     expect(screen.getByText('Nombre')).toBeInTheDocument();
     expect(screen.getByText('Especie')).toBeInTheDocument();
