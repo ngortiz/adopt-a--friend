@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 import {
   Card,
@@ -51,12 +51,14 @@ const Container = styled.div`
 `;
 const LoadingContainer = styled.div`
   display: flex;
-  justify-content: center !important;
-  align-items: center !mportant;
-  height: auto;
+  justify-content: center;
+  align-items: center;
 
+  height: 100vh;
   background-color: #e0e5ec;
-  margin-left: 10%;
+
+  margin: 0;
+  padding: 0;
 `;
 
 const StyledSidebar = styled('aside')`
@@ -100,13 +102,17 @@ const StyledTitle = styled('h3')`
   margin-bottom: 10px;
   text-align: center;
 `;
-
-const StyledFilterButton = styled(Button)`
+const StyledFilterButton = styled(({ active, ...rest }) => (
+  <Button {...rest} />
+))<{ active?: boolean }>`
   margin: 5px !important;
   width: 100%;
-  background-color: white !important;
-  color: #e67e22 !important;
+  background-color: ${({ active }) =>
+    active ? '#e67e22' : 'white'} !important;
+  color: ${({ active }) => (active ? 'white' : '#e67e22')} !important;
   border-color: #e67e22 !important;
+  font-weight: ${({ active }) => (active ? 'bold' : 'normal')} !important;
+
   &:hover {
     background-color: #333 !important;
     color: #e67e22 !important;
@@ -228,10 +234,9 @@ const PaginationContainer = styled.div`
   color: #e67e22 !important;
 `;
 const Title = styled.div`
-  background-color: white !important;
-  color: #e67e22 !important;
+  color: #555 !important;
   border-radius: 30px !important;
-  border: 1px solid #e67e22 !important;
+
   margin-bottom: 20px !important;
   text-align: center !important;
   font-size: 2rem;
@@ -307,7 +312,25 @@ const AdoptAPet = () => {
     fetchPets();
   }, []);
 
-  const filteredPets = pets.filter(
+  const filteredPets = useMemo(() => {
+    return pets.filter(
+      (pet) =>
+        (!selectedSpecies || pet.species === selectedSpecies) &&
+        (!selectedGender || pet.gender === selectedGender)
+    );
+  }, [pets, selectedSpecies, selectedGender]);
+
+  const totalPages = useMemo(() => {
+    return Math.ceil(filteredPets.length / pageSize);
+  }, [filteredPets, pageSize]);
+
+  const paginatedPets = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    const end = currentPage * pageSize;
+    return filteredPets.slice(start, end);
+  }, [filteredPets, currentPage, pageSize]);
+
+  /*const filteredPets = pets.filter(
     (pet) =>
       (!selectedSpecies || pet.species === selectedSpecies) &&
       (!selectedGender || pet.gender === selectedGender)
@@ -317,7 +340,7 @@ const AdoptAPet = () => {
   const paginatedPets = filteredPets.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
-  );
+  );*/
 
   useEffect(() => {
     setCurrentPage(1);
@@ -410,20 +433,34 @@ const AdoptAPet = () => {
           <Logo src={logo2} alt='Adopta Un Amigo' />
 
           <StyledTitle>Género</StyledTitle>
-          <StyledFilterButton onClick={() => setSelectedGender('Hembra')}>
+          <StyledFilterButton
+            active={selectedGender === 'Hembra'}
+            onClick={() => setSelectedGender('Hembra')}
+          >
             Hembra
           </StyledFilterButton>
-          <StyledFilterButton onClick={() => setSelectedGender('Macho')}>
+
+          <StyledFilterButton
+            active={selectedGender === 'Macho'}
+            onClick={() => setSelectedGender('Macho')}
+          >
             Macho
           </StyledFilterButton>
-          <Divider sx={{ width: '100%', margin: '10px 0' }} />
-          <StyledTitle>Especies</StyledTitle>
-          <StyledFilterButton onClick={() => setSelectedSpecies('Perro')}>
+
+          <StyledFilterButton
+            active={selectedSpecies === 'Perro'}
+            onClick={() => setSelectedSpecies('Perro')}
+          >
             🐶 Perro
           </StyledFilterButton>
-          <StyledFilterButton onClick={() => setSelectedSpecies('Gato')}>
+
+          <StyledFilterButton
+            active={selectedSpecies === 'Gato'}
+            onClick={() => setSelectedSpecies('Gato')}
+          >
             🐱 Gato
           </StyledFilterButton>
+
           <Divider sx={{ width: '100%', margin: '10px 0' }} />
           {user && (
             <ListItem disablePadding>
